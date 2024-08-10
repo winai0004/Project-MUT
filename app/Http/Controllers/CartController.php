@@ -64,5 +64,13 @@ class CartController extends Controller
             return redirect()->route('cart.show')->with('error', 'Product not found in cart');
         }
     }
+
+    public function checkout()
+    {
+        // $user = Auth::user();
+        // $cartItems = Cart::where('member_id', $user->id)->get(); // แก้ไขจา�� user_id เป็น member_id
+
+        return view('frontend.checkout');
+    }
 }
 

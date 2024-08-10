@@ -9,9 +9,13 @@
      <meta name="csrf-token" content="{{ csrf_token() }}">
  
      <title>@yield('title')</title>
- 
      <!-- Scripts -->
      @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+     
+     {{-- jquery --}}
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+
      <!-- Font Awesome -->
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
  </head>
