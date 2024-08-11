@@ -105,11 +105,8 @@
                          </li> --}}
                          <!-- Update your cart link in the navbar -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('cart.show') }}">
+                            <a class="nav-link" href="{{ route('cartview') }}">
                                 <i class="fas fa-shopping-cart"></i> ตะกร้า
-                                @if(session('cart'))
-                                    <span class="badge">{{ count(session('cart')) }}</span>
-                                @endif
                             </a>
                         </li>
                          <li class="nav-item dropdown">

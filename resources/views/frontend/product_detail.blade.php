@@ -240,39 +240,37 @@
                     <!-- แสดงราคาสินค้า -->
                     <p class="price">{{ $product->selling_price }} Bath</p>
                     <!-- แสดงแบบฟอร์มสำหรับเพิ่มสินค้าในตะกร้า -->
-                    <form action="{{ route('cart.add') }}" method="POST">
+                    <form id="productForm">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                         <input type="hidden" name="name" value="{{ $product->product_name }}">
                         <input type="hidden" name="price" value="{{ $product->selling_price }}">
-                        <!-- แสดงตัวเลือกสีของสินค้า -->
+                        
+                        <!-- Display color options -->
                         @if(isset($product->color_name))
-                           
                         <div class="option">
                             <label>Color:</label>
                             <br>
                             @foreach($colors as $color)                            
                             <button type="button" class="color-btn mb-3" data-color="{{ $color->color_name }}">{{ $color->color_name }}</button>
-                            <input type="hidden" name="color" value="{{ $color->color_name }}">
                             @endforeach
                         </div>
                         @endif
-
-                        <!-- แสดงตัวเลือกไซส์ของสินค้า -->
+                    
+                        <!-- Display size options -->
                         @if(isset($product->size_name))
                         <div class="option">
                             <label>Size:</label>
                             <br>
                             @foreach($sizes as $size)
                             <button type="button" class="size-btn mb-3" data-size="{{ $size->size_name }}">{{ $size->size_name }}</button>
-                            <input type="hidden" name="size" value="{{ $size->size_name }}">
                             @endforeach
                         </div>
-
-
                         @endif
-                        <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                    
+                        <a type="button" style="text-decoration: none;" class="add-to-cart-btn" id="btn_cart"  href="{{ route('cartview') }}" >Add to Cart</a>
                     </form>
+                    
                 </div>
             </div>
         </div>
@@ -280,6 +278,59 @@
 </section>
 
 <script>
+
+$(document).ready(function() {
+    var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+
+    $('.color-btn').on('click', function() {
+        var selectedColor = $(this).data('color');
+        $(this).addClass('selected').siblings().removeClass('selected');
+        localStorage.setItem('selectedColor', selectedColor);
+    });
+
+    $('.size-btn').on('click', function() {
+        var selectedSize = $(this).data('size');
+        $(this).addClass('selected').siblings().removeClass('selected');
+        localStorage.setItem('selectedSize', selectedSize);
+    });
+    
+
+    $('#btn_cart').on('click', function(e) {
+        e.preventDefault();
+
+        var productData = {
+            product_id: $('input[name="product_id"]').val(),
+            name: $('input[name="name"]').val(),
+            price: $('input[name="price"]').val(),
+            color: localStorage.getItem('selectedColor'),
+            size: localStorage.getItem('selectedSize'),
+            quantity: 1,
+            user: '{{ Auth::user()->id }}'
+        };
+
+        var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        var productExists = false;
+
+        cartItems.forEach(function(item) {
+            if(item.product_id === productData.product_id &&
+            item.color === productData.color &&
+            item.size === productData.size) {
+                item.quantity += 1;
+                productExists = true;
+            }
+        });
+
+        if(!productExists) {
+            cartItems.push(productData);
+        }
+
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+        window.location.href = $(this).attr('href');
+    });
+
+
+});
     // Color button click event
     document.querySelectorAll('.color-btn').forEach(function(button) {
         button.addEventListener('click', function() {

@@ -10,13 +10,6 @@
 
         <h1>Shopping Cart</h1>
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(count($cartItems) > 0)
         <div class="d-flex align-items-start flex-row ">
             <div class="flex-1 w-100 mt-3">
                 <table class="table">
@@ -31,27 +24,12 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($cartItems as $item)
-                            <tr>
-                                <td>{{ $item->name }}</td>
-                                <td>{{ $item->color }}</td>
-                                <td>{{ $item->size }}</td>
-                                <td>฿{{ number_format($item->price, 2) }}</td>
-                                <td> 
-                                    <button type="button" class="btn btn-dark mx-2 btn-increment">+</button>
-                                    <span class="quantity">{{ $item->quantity }}</span>
-                                    <button type="button" class="btn btn-dark mx-2 btn-decrement">-</button>
-                                </td>
-                                <td id="total_price">฿{{ number_format($item->price * $item->quantity, 2) }}</td>
-                                <td><button type="button" class="btn btn-danger">Delete</button>
-                                </td>
-                            </tr>
-                        @endforeach
+                    <tbody id="cartItemsContainer">
+                        <!-- Cart items will be injected here by jQuery -->
                     </tbody>
-                   
                 </table>
             </div>
+            
 
             <div class="flex-1 w-50 " style="height: auto; margin-left:1rem; background:#F0EAD6;">
                <div class="p-4">
@@ -153,10 +131,7 @@
 
            
         </div>
-           
-        @else
-            <p>Your cart is empty.</p>
-        @endif
+     
 
     </div>
 
@@ -165,40 +140,140 @@
 <script>
 
 $(document).ready(function(){
-    var rs_total = parseFloat($('#total_price').text().replace('฿', '').replace(',', ''));
+    var user_id = '{{ Auth::user()->id }}'; 
+    var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
-    // ดึงค่า quantity เริ่มต้น
-    let initialQuantity = parseInt($('.quantity').text());
-    // ดึงค่า total_price จาก text และแปลงเป็นตัวเลข
-    var rs_total = parseFloat($('#total_price').text().replace('฿', '').replace(',', ''));
+    function updateCartUI() {
+        $('#cartItemsContainer').empty();
 
-    // แสดงค่าเริ่มต้นของ quantityDisplay และ total
-    $('#quantityDisplay').text(initialQuantity + ' ชิ้น');
-    $('#total').text('฿' + (initialQuantity * rs_total).toFixed(2));
+        if (cartItems.length > 0) {
+        let itemsFound = false;
 
-    // เพิ่มค่าเมื่อคลิกปุ่ม increment
-    $('.btn-increment').click(function() {
-        let quantityElement = $(this).siblings('.quantity');
-        let currentQuantity = parseInt(quantityElement.text());
-        let newQuantity = currentQuantity + 1;
-        
-        quantityElement.text(newQuantity);
-        $('#quantityDisplay').text(newQuantity + ' ชิ้น');
-        $('#total').text('฿' + (newQuantity * rs_total).toFixed(2));
+        cartItems.forEach(function(item, index) {
+            if (user_id == item.user) { 
+                itemsFound = true;
+                var itemTotalPrice = (item.price * item.quantity).toFixed(2);
+                var itemHtml = `
+                    <tr data-index="${index}">
+                        <td>${item.name}</td>
+                        <td>${item.color}</td>
+                        <td>${item.size}</td>
+                        <td>฿${parseFloat(item.price).toFixed(2)}</td>
+                        <td> 
+                            <button type="button" class="btn btn-dark mx-2 btn-increment">+</button>
+                            <span class="quantity">${item.quantity}</span>
+                            <button type="button" class="btn btn-dark mx-2 btn-decrement">-</button>
+                        </td>
+                        <td class="total-price">฿${itemTotalPrice}</td>
+                        <td><button type="button" class="btn btn-danger btn-delete">Delete</button></td>
+                    </tr>
+                `;
+                $('#cartItemsContainer').append(itemHtml);
+            }
+        });
+
+        if (!itemsFound) {
+            $('#cartItemsContainer').html('<tr><td colspan="7">Items belong to another user.</td></tr>');
+        }
+    } else {
+        $('#cartItemsContainer').html('<tr><td colspan="7">Your cart is empty.</td></tr>');
+    }
+    }
+
+    updateCartUI();
+
+    $(document).on('click', '.btn-increment', function() {
+        var index = $(this).closest('tr').data('index');
+        cartItems[index].quantity++;
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        updateCartUI();
     });
 
-    // ลดค่าเมื่อคลิกปุ่ม decrement
-    $('.btn-decrement').click(function() {
+    $(document).on('click', '.btn-decrement', function() {
+        var index = $(this).closest('tr').data('index');
+        if (cartItems[index].quantity > 1) {
+            cartItems[index].quantity--;
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            updateCartUI();
+        }
+    });
+
+   
+
+
+    var total_price = 0;
+    var total_quantity = 0;
+
+ 
+   function calculate(){
+    if (cartItems.length > 0) {
+        cartItems.forEach(function(item) {
+            total_price += parseFloat(item.price) * parseInt(item.quantity);
+            total_quantity += parseInt(item.quantity);
+        });
+    }
+    updateBoxCartUI();
+   }
+
+    calculate();
+
+
+    function updateBoxCartUI() {
+        $('#quantityDisplay').text(total_quantity + ' ชิ้น');
+        $('#total').text('฿' + total_price.toFixed(2));
+    }
+
+   
+    $(document).on('click', '.btn-delete', function() {
+        var index = $(this).closest('tr').data('index');
+
+        total_price -= cartItems[index].price * cartItems[index].quantity;
+        total_quantity -= cartItems[index].quantity;
+
+        cartItems.splice(index, 1);
+
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+        updateCartUI();
+
+        if (total_price < 0) total_price = 0;
+        if (total_quantity < 0) total_quantity = 0;
+
+        updateBoxCartUI();
+    });
+
+
+
+    $(document).on('click', '.btn-increment', function() {
+        total_quantity++;
+        updateCalulatePrice();
+    });
+
+    $(document).on('click', '.btn-decrement', function() {
         let quantityElement = $(this).siblings('.quantity');
         let currentQuantity = parseInt(quantityElement.text());
         
         if (currentQuantity > 1) {
-            let newQuantity = currentQuantity - 1;
-            quantityElement.text(newQuantity);
-            $('#quantityDisplay').text(newQuantity + ' ชิ้น');
-            $('#total').text('฿' + (newQuantity * rs_total).toFixed(2));
+            total_quantity--;
+            updateCalulatePrice();
         }
     });
+
+    function updateCalulatePrice(){
+        var list = [];
+        cartItems.forEach(function(item) {
+            var item_total = item.price * item.quantity;
+            total_price += item_total;
+            list.push(item_total)
+        });
+
+        total_price = list.reduce((a, b) => a + b, 0);
+
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        updateBoxCartUI();
+
+    }
+
 
     $("#btn_checkout").click(function() {
         let name = $('#name').val();
@@ -214,6 +289,8 @@ $(document).ready(function(){
             window.location.href =  $(this).data('href');
         }
     });
+
+
 
 });
 
