@@ -123,7 +123,10 @@ Route::get('admin/order_products/delete/{id}', [Order_itemController::class, 'de
 Route::post('admin/order_products/update/{id}', [Order_itemController::class, 'update'])->name('update_order_products');
 
 //Order Product
-Route::get('admin/tables/order_products_detail', [Order_ProductDetailController::class, 'index'])->name('order_products_detail');
+Route::get('admin/tables/order_shopping', [Order_ProductDetailController::class, 'index'])->name('order_shopping');
+Route::get('admin/view/order_view/{id}', [Order_ProductDetailController::class, 'orderview'])->name('order_view');
+Route::post('/order/update-status', [Order_ProductDetailController::class, 'updateStatus'])->name('order.updateStatus');
+Route::delete('/order/delete/{id}', [Order_ProductDetailController::class, 'delete'])->name('order.delete');
 Route::get('admin/form/order_products_detailForm', [Order_ProductDetailController::class, 'create'])->name('form_order_products_detail');
 Route::post('admin/form/order_products_detailForm', [Order_ProductDetailController::class, 'insert'])->name('insert_order_products_detail');
 Route::get('admin/order_products_detail/edit/{id}', [Order_ProductDetailController::class, 'edit'])->name('edit_order_products_detail');
@@ -152,7 +155,16 @@ Route::get('admin/tables/reportsales', [reportsalesController::class, 'index'])-
 Route::middleware(['auth'])->group(function () {
     
     Route::get('/cart', [CartController::class, 'cartview'])->name('cartview');
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+    Route::get('/checkout', [CartController::class, 'checkoutView'])->name('checkout-view');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/delete/{cartId}',  [CartController::class, 'delete'])->name('cart.delete');
+    Route::put('/cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::get('/cart/totals', [CartController::class, 'getCartTotals']);
+    Route::post('/cart/checkout-add', [CartController::class, 'checkoutAdd'])->name('checkout-add');
+    
+
+
+
 });
 
 

@@ -222,7 +222,7 @@ a.sidebar-link:hover {
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="{{ route('order_products_detail')}}" class="sidebar-link">
+                    <a href="{{ route('order_shopping')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
                         <span>Order Product Detail</span>
                     </a>

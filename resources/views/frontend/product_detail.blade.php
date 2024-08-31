@@ -240,23 +240,25 @@
                     <!-- แสดงราคาสินค้า -->
                     <p class="price">{{ $product->selling_price }} Bath</p>
                     <!-- แสดงแบบฟอร์มสำหรับเพิ่มสินค้าในตะกร้า -->
-                    <form id="productForm">
+                    <form id="productForm" action="{{ route('cart.add') }}" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                         <input type="hidden" name="name" value="{{ $product->product_name }}">
                         <input type="hidden" name="price" value="{{ $product->selling_price }}">
-                        
+                        <input type="hidden" id="selectedColor" name="color">
+                        <input type="hidden" id="selectedSize" name="size">
+            
                         <!-- Display color options -->
                         @if(isset($product->color_name))
                         <div class="option">
                             <label>Color:</label>
                             <br>
-                            @foreach($colors as $color)                            
+                            @foreach($colors as $color)
                             <button type="button" class="color-btn mb-3" data-color="{{ $color->color_name }}">{{ $color->color_name }}</button>
                             @endforeach
                         </div>
                         @endif
-                    
+            
                         <!-- Display size options -->
                         @if(isset($product->size_name))
                         <div class="option">
@@ -267,12 +269,12 @@
                             @endforeach
                         </div>
                         @endif
-                    
-                        <a type="button" style="text-decoration: none;" class="add-to-cart-btn" id="btn_cart"  href="{{ route('cartview') }}" >Add to Cart</a>
+            
+                        <button type="submit" class="add-to-cart-btn" >Add to Cart</button>
                     </form>
-                    
                 </div>
             </div>
+            
         </div>
     </div>
 </section>
