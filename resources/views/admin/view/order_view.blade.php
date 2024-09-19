@@ -19,11 +19,17 @@
                     <span>วันที่ {{ date('d-m-Y', strtotime($order->created_at)) }}</span>
                     <span>เวลา {{ date('H:i', strtotime($order->created_at)) }}</span>
                 </div>
-                <div class="mt-1">
-                    <span>
+                <div class="mt-1 d-flex">
+                    <span class="me-2">
                         {{ $order->payment_method }}
                     </span>
+
+                    <span>
+                        <p><a href="{{ asset('storage/' . $order->slip) }}" target="_blank">ดูสลิป</a></p>
+                    </span>
                 </div>
+
+               
                 <div class="mt-2">
                     Item orders
                     <div>

@@ -30,7 +30,7 @@
                         <div class="card-body p-4">
                             <div class="text-center">
                                 <!-- Product name-->
-                                <h5 class="fw-bolder">{{ $product->product_name }}</h5>
+                                <h5 class="fw-bolder">{{ $product->stock_name }}</h5>
                                 <!-- Product price-->
                                {{ $product->selling_price }} ฿
                             </div>

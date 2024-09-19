@@ -38,15 +38,16 @@
                                         </tr>
                                         @break
                                     @else
+
                                         <tr data-index="{{ $index }}">
                                             <td>{{ $item->name }}</td>
                                             <td>{{ $item->color }}</td>
                                             <td>{{ $item->size }}</td>
                                             <td class="price" data-price="{{ $item->price }}">฿{{ number_format($item->price, 2) }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-dark mx-2 btn-increment" data-cart-id="{{ $item->cart_id }}">+</button>
+                                                <button type="button" class="btn btn-dark mx-2 btn-increment" data-cart-id="{{ $item->cart_id }}" data-product-id="{{ $item->product_id }}">+</button>
                                                 <span class="quantity">{{ $item->quantity }}</span>
-                                                <button type="button" class="btn btn-dark mx-2 btn-decrement"  data-cart-id="{{ $item->cart_id }}">-</button>
+                                                <button type="button" class="btn btn-dark mx-2 btn-decrement"  data-cart-id="{{ $item->cart_id }}" data-product-id="{{ $item->product_id }}">-</button>
                                             </td>
                                             <td class="total-price">฿{{ number_format($item->price * $item->quantity, 2) }}</td>
                                             <td>                        
@@ -269,81 +270,77 @@ $(document).ready(function(){
     });
 
     $(document).on('click', '.btn-increment', function() {
-        var cartId = $(this).data('cart-id');
-        var $row = $(this).closest('tr');
-        var quantitySpan = $row.find('.quantity');
-        var price = parseFloat($row.find('.price').data('price'));
+    let cartId = $(this).data('cart-id');
+    let productId = $(this).data('product-id');
+    let $row = $(this).closest('tr');
+    let quantitySpan = $row.find('.quantity');
+    let price = parseFloat($row.find('.price').data('price'));
+    let quantity = parseInt(quantitySpan.text());
 
-        var quantity = parseInt(quantitySpan.text());
-
-        quantity++;
-        quantitySpan.text(quantity);
-
-        // คำนวณราคาใหม่
-        var newTotalPrice = (price * quantity).toFixed(2);
-
-        // console.log('Quantity:', quantity);
-        // console.log('Price:', price);
-        // console.log('New Total Price:', newTotalPrice);
-
-
-        // ใช้ toLocaleString() เพื่อจัดรูปแบบจำนวนเต็มพร้อมทศนิยม
-        var formattedPrice = parseFloat(newTotalPrice).toLocaleString('en-US', { minimumFractionDigits: 2 });
-
-        // อัปเดต UI
-        $row.find('.total-price').text('฿' + formattedPrice);
-
-        updateCartItem(cartId, quantity);
-        fetchCartTotals();
-
-    });
-
-    $(document).on('click', '.btn-decrement', function() {
-        var cartId = $(this).data('cart-id');
-        var $row = $(this).closest('tr');
-        var quantitySpan = $row.find('.quantity');
-        var price = parseFloat($row.find('.price').data('price'));
-
-        var quantity = parseInt(quantitySpan.text());
-
-        // ลดจำนวนสินค้า
-        if (quantity > 1) {
+    updateQuantity(productId).done(function(response) {
+        if (response.success) {
+            alert('สินค้าหมดสต็อก');
             quantity--;
-
-            // อัปเดต UI
-            quantitySpan.text(quantity);
-
-            var newTotalPrice = (price * quantity).toFixed(2);
-
-            // ดีบักเพื่อตรวจสอบค่า
-            // console.log('Quantity:', quantity);
-            // console.log('Price:', price);
-            // console.log('New Total Price:', newTotalPrice);
-
-            // อัปเดตราคาทั้งหมด
-            // แยกส่วนจำนวนเต็มและส่วนทศนิยม
-            var newTotalPrice = (price * quantity).toFixed(2);
-
-            // ใช้ toLocaleString() เพื่อจัดรูปแบบจำนวนเต็มพร้อมทศนิยม
-            var formattedPrice = parseFloat(newTotalPrice).toLocaleString('en-US', { minimumFractionDigits: 2 });
-
-            // อัปเดต UI
-            $row.find('.total-price').text('฿' + formattedPrice);
-
-            updateCartItem(cartId, quantity);
+        } else {
+            quantity++;
+            updateCartItem(cartId, quantity, true);
             fetchCartTotals();
         }
+        quantitySpan.text(quantity);
+        $row.find('.total-price').text('฿' + (price * quantity).toFixed(2).toLocaleString('en-US', { minimumFractionDigits: 2 }));
+    }).fail(function() {
+        console.log('เกิดข้อผิดพลาดในการตรวจสอบสต็อก');
     });
+});
 
 
-    function updateCartItem(cartId, quantity) {
+    $(document).on('click', '.btn-decrement', function() {
+    let cartId = $(this).data('cart-id');
+    let productId = $(this).data('product-id');
+    let $row = $(this).closest('tr');
+    let quantitySpan = $row.find('.quantity');
+    let price = parseFloat($row.find('.price').data('price'));
+
+    let quantity = parseInt(quantitySpan.text());
+
+    if (quantity <= 1) {
+        alert('ซื้อขั้นต่ำ 1 ชิ้น');
+        return;
+    } else {
+        // ตรวจสอบสต็อกและอัปเดตตะกร้า
+        updateQuantity(productId).done(function(response) {
+            if (response.success) {
+                alert(response.message);  // ถ้ามีปัญหาสต็อกไม่พอ
+            } else {
+                quantity--; 
+                quantitySpan.text(quantity); 
+
+                // คำนวณราคาใหม่
+                let newTotalPrice = (price * quantity).toFixed(2);
+                let formattedPrice = parseFloat(newTotalPrice).toLocaleString('en-US', { minimumFractionDigits: 2 });
+
+                // อัปเดตราคาสินค้ารวม
+                $row.find('.total-price').text('฿' + formattedPrice); 
+
+                // อัปเดตข้อมูลในตะกร้า
+                updateCartItem(cartId, quantity, false);
+                fetchCartTotals();
+            }
+        });
+    }
+});
+
+
+
+    function updateCartItem(cartId, quantity , checkMark) {
         $.ajax({
             url: '/cart/update',
             type: 'PUT',  // ใช้ PUT สำหรับการอัปเดตข้อมูล
             data: {
                 _token: '{{ csrf_token() }}',
                 cart_id: cartId,
-                quantity: quantity
+                quantity: quantity,
+                checkMark :checkMark
             },
             success: function(response) {
                 console.log('Cart item updated successfully.');
@@ -355,8 +352,24 @@ $(document).ready(function(){
     }
 
 
+    function updateQuantity(productId) {
+        return $.ajax({
+            url: '/cart/update/stock/quantity/' + productId,
+            type: 'PUT',
+            data: {
+                _token: '{{ csrf_token() }}',
+                product_id: productId,
+            },
+        });
+    }
+
+
     // ฟังก์ชันในการอัปเดตข้อมูลใน UI
     function updateCartTotals(totalQuantity, totalPrice) {
+        if(totalQuantity == null && totalPrice == null){
+            totalQuantity = 0;
+            totalPrice = 0;
+        }
         $('.total_quantity').text(totalQuantity + ' ชิ้น');
 
         var formattedPrice = parseFloat(totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2 });

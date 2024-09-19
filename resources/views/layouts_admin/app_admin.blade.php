@@ -135,11 +135,13 @@ a.sidebar-link:hover {
                 <button class="toggle-btn" type="button">
                     <i class="lni lni-grid-alt"></i>
                 </button>
-                <div class="sidebar-logo">
-                    <a href="#">Clothing Shop</a>
-                    <a id="navbarDropdown" class="sidebar-link" href="#" role="button">
-                        admin {{ Auth::user()->name }}
-                    </a>
+                <div class="sidebar-logo mt-3">
+                    <div>
+                        <a href="#">Clothing Shop</a>
+                    </div>
+                    <div>
+                       <p class="text-light"> admin {{ Auth::user()->name }}</p>
+                    </div>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -228,7 +230,7 @@ a.sidebar-link:hover {
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="" class="sidebar-link">
+                    <a href="{{ route('stock_items')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
                         <span>Stock</span>
                     </a>

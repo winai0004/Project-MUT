@@ -6,28 +6,42 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Auth;
+
+
 class ProductController extends Controller
 {
     public function index() {
         $products = DB::table('products')
-            ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
-            ->leftJoin('shirt_size_data', 'products.size_id', '=', 'shirt_size_data.size_id')
-            ->leftJoin('product_category_data', 'products.category_id', '=', 'product_category_data.category_id')
-            ->select('products.*', 'shirt_color.color_name', 'shirt_size_data.size_name', 'product_category_data.category_name')
-            ->get();
+        ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
+        ->leftJoin('shirt_size_data', 'products.size_id', '=', 'shirt_size_data.size_id')
+        ->leftJoin('product_category_data', 'products.category_id', '=', 'product_category_data.category_id')
+        ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id') 
+        ->select(
+            'products.*',
+            'shirt_color.color_name',
+            'shirt_size_data.size_name',
+            'product_category_data.category_name',
+            'stock_items.name as stock_name'
+        )
+        ->get();
+    
+
 
         return view('admin/tables/products', compact('products'))
-            ->with('products', $products->map(function($item) {
-                $item->selling_price = number_format($item->selling_price, 2);
-                return $item;
-            }));
+        ->with('products', $products->map(function($item) {
+            $item->selling_price = number_format((float)$item->selling_price, 2, '.', ',');
+            return $item;
+        }));
+    
     }
 
     public function create() {
+        $stocks = DB::table('stock_items')->get();
         $sizes = DB::table('shirt_size_data')->get();
         $colors = DB::table('shirt_color')->get();
         $categories = DB::table('product_category_data')->get();
-        return view('admin/form/productsForm', compact('sizes', 'colors', 'categories'));
+        return view('admin/form/productsForm', compact('sizes', 'colors', 'categories','stocks'));
     }
 
     public function view() {
@@ -35,30 +49,44 @@ class ProductController extends Controller
             ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
             ->leftJoin('shirt_size_data', 'products.size_id', '=', 'shirt_size_data.size_id')
             ->leftJoin('product_category_data', 'products.category_id', '=', 'product_category_data.category_id')
-            ->select('products.*', 'shirt_color.color_name', 'shirt_size_data.size_name', 'product_category_data.category_name')
+            ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id') 
+            ->select('products.*', 'shirt_color.color_name', 'shirt_size_data.size_name', 'product_category_data.category_name',  'stock_items.name as stock_name')
             ->paginate(8);
 
         return view('frontend/welcomeuser', compact('products'));
     }
 
     public function Detailview($id) {
-        $product = DB::table('products')
+
+        if (Auth::check()) {
+            $product = DB::table('products')
             ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
             ->leftJoin('shirt_size_data', 'products.size_id', '=', 'shirt_size_data.size_id')
             ->leftJoin('product_category_data', 'products.category_id', '=', 'product_category_data.category_id')
-            ->select('products.*', 'shirt_color.color_name', 'shirt_size_data.size_name', 'product_category_data.category_name')
-            ->where('product_id', $id)
+            ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id')
+            ->select(
+                'products.*', 
+                'shirt_color.color_name', 
+                'shirt_size_data.size_name', 
+                'product_category_data.category_name',
+                'stock_items.name as stock_name'
+            )
+            ->where('products.product_id', $id)
             ->first();
-
+        
         $sizes = DB::table('shirt_size_data')->get();
         $colors = DB::table('shirt_color')->get();
 
         return view('frontend/product_detail', compact('product', 'sizes', 'colors'));
+        } else {
+            return redirect()->route('login');
+        }
+       
     }
 
     public function insert(Request $request) {
         $request->validate([
-            'product_name' => 'required',
+            'stock_id' => 'required',
             'product_img' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cost_price' => 'required',
             'selling_price' => 'required',
@@ -66,7 +94,7 @@ class ProductController extends Controller
             'color_id' => 'required',
             'size_id' => 'required'
         ], [
-            'product_name.required' => 'กรุณากรอกชื่อสินค้า',
+            'stock_id.required' => 'กรุณากรอกชื่อสินค้า',
             'product_img.required' => 'กรุณาเลือกรูปภาพสินค้า',
             'product_img.image' => 'กรุณาเลือกไฟล์ภาพ',
             'cost_price.required' => 'กรุณากรอกราคาทุน',
@@ -79,7 +107,7 @@ class ProductController extends Controller
         $imageName = time() . '.' . $request->product_img->extension();
 
         $data = [
-            'product_name' => $request->product_name,
+            'stock_id' => $request->stock_id,
             'product_img' => $imageName,
             'category_id' => $request->category_id,
             'color_id' => $request->color_id,
@@ -95,41 +123,49 @@ class ProductController extends Controller
         return redirect('admin/tables/products');
     }
 
-    public function delete($id) {
-        DB::table('products')->where('product_id', $id)->delete();
-        return redirect('admin/tables/products');
+    public function delete($id)
+    {
+        DB::beginTransaction();
+    
+        try {
+            DB::table('carts')->where('product_id', $id)->delete();
+            DB::table('products')->where('product_id', $id)->delete();
+
+            DB::commit();
+            return redirect('admin/tables/products')->with('success', 'Product and related carts deleted successfully.');
+        
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect('admin/tables/products')->with('error', 'An error occurred while deleting the product.');
+        }
     }
+    
 
     public function edit($id) {
         $products = DB::table('products')->where('product_id', $id)->first();
         $productCategoryID = $products->category_id;
         $sizeId = $products->size_id;
         $colorId = $products->color_id;
+        $stockId = $products->stock_id;
         $categories = DB::table('product_category_data')->get();
         $sizes = DB::table('shirt_size_data')->get();
         $colors = DB::table('shirt_color')->get();
-        return view('admin/form/productsEdit', compact('products', 'categories', 'sizes', 'colors', 'productCategoryID', 'sizeId', 'colorId'));
+        $stocks = DB::table('stock_items')->get();
+        return view('admin/form/productsEdit', compact('products', 'categories', 'sizes', 'colors', 'productCategoryID', 'sizeId', 'colorId','stocks','stockId'));
     }
 
     public function update(Request $request, $id) {
         $request->validate([
-            'product_name' => 'required',
-            'cost_price' => 'required',
-            'selling_price' => 'required',
-            'category_id' => 'required',
-            'color_id' => 'required',
-            'size_id' => 'required'
-        ], [
-            'product_name.required' => 'กรุณากรอกชื่อสินค้า',
-            'cost_price.required' => 'กรุณากรอกราคาทุน',
-            'selling_price.required' => 'กรุณากรอกราคาขาย',
-            'category_id.required' => 'กรุณาเลือกประเภท',
-            'color_id.required' => 'กรุณาเลือกสี',
-            'size_id.required' => 'กรุณาเลือกไซส์'
+            'stock_id' => 'nullable',
+            'cost_price' => 'nullable',
+            'selling_price' => 'nullable',
+            'category_id' => 'nullable',
+            'color_id' => 'nullable',
+            'size_id' => 'nullable'
         ]);
 
         $data = [
-            'product_name' => $request->product_name,
+            'stock_id' => $request->stock_id,
             'category_id' => $request->category_id,
             'color_id' => $request->color_id,
             'size_id' => $request->size_id,
@@ -162,4 +198,20 @@ class ProductController extends Controller
 
         return redirect('admin/tables/products');
     }
+
+
+    public function getProductPrice($id)
+    {
+        $stock = DB::table('stock_items')->where('stock_id', $id)->first();
+            if ($stock) {
+            return response()->json([
+                'price' => $stock->price, 
+            ]);
+        } else {
+            return response()->json([
+                'error' => 'Product not found'
+            ], 404);
+        }
+    }
+
 }

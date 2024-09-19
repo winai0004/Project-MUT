@@ -18,6 +18,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\Sale_ProductController;
 use App\Http\Controllers\Order_ProductDetailController;
 use App\Http\Controllers\Order_itemController;
+use App\Http\Controllers\StockController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,6 +38,8 @@ Route::post('admin/form/productsForm', [ProductController::class, 'insert'])->na
 Route::get('admin/products/edit/{id}', [ProductController::class, 'edit'])->name('edit_products');
 Route::get('admin/products/delete/{id}', [ProductController::class, 'delete'])->name('delete_products');
 Route::post('admin/products/update/{id}', [ProductController::class, 'update'])->name('update_products');
+Route::get('/get-product-price/{id}', [ProductController::class, 'getProductPrice']);
+
 
 //shirtTypeName
 Route::get('admin/tables/shirtTypeName', [ShirtTypeNameController::class, 'index'])->name('shirt');
@@ -148,17 +151,27 @@ Route::post('admin/sale_products/update/{id}', [Sale_ProductController::class, '
 Route::get('admin/tables/reportsales', [reportsalesController::class, 'index'])->name('reportsales');
 
 
+//stock
+Route::get('admin/tables/stock', [stockController::class, 'index'])->name('stock_items');
+Route::get('admin/form/stockForm', [stockController::class, 'create'])->name('stock_form');
+Route::post('admin/form/stockForm', [stockController::class, 'store'])->name('stock_add');
+Route::get('admin/form/stockEdit/{id}', [stockController::class, 'edit'])->name('stock_edit');
+Route::put('admin/stock/update/{id}', [stockController::class, 'update'])->name('stock_update');
+Route::delete('admin/stock/delete/{id}', [stockController::class, 'destroy'])->name('stock_delete');
+
+
 // //Cart
 // Route สำหรับเพิ่มสินค้าในตะกร้า
 // Route::get('cart', [CartController::class, 'show'])->name('cart.show');
 // Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::middleware(['auth'])->group(function () {
-    
+    Route::get('frontend/product_detail/{id}', [ProductController::class, 'Detailview'])->name('detail');
     Route::get('/cart', [CartController::class, 'cartview'])->name('cartview');
     Route::get('/checkout', [CartController::class, 'checkoutView'])->name('checkout-view');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::delete('/cart/delete/{cartId}',  [CartController::class, 'delete'])->name('cart.delete');
     Route::put('/cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::put('/cart/update/stock/quantity/{id}', [CartController::class, 'updateQuantity'])->name('cart.update_quantity');
     Route::get('/cart/totals', [CartController::class, 'getCartTotals']);
     Route::post('/cart/checkout-add', [CartController::class, 'checkoutAdd'])->name('checkout-add');
     
@@ -171,7 +184,6 @@ Route::middleware(['auth'])->group(function () {
 
 // Route อื่นๆ
 Route::get('/', [ProductController::class, 'view']);
-Route::get('frontend/product_detail/{id}', [ProductController::class, 'Detailview'])->name('detail');
 Route::get('admin', function () {
     return view('admin/index');
 })->name('admin');
