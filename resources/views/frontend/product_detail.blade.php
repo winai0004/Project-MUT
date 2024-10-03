@@ -86,16 +86,47 @@
                     <img src="{{ asset('images/' . $product->product_img) }}" alt="Product Image" height="400px" width="600px">
                 </div>
                 <div class="product-info">
-                    <h1>{{ $product->stock_name }}</h1>
-                    <p class="price">{{ $product->selling_price }} Bath</p>
+                    <div class="d-flex align-items-center"> <!-- จัดให้อยู่ตรงกลางในแนวแกน y -->
+                        <div>
+                            <h1 class="px-2">{{ $product->stock_name }}</h1>
+                        </div>
+                        @if ($promotion_valid)
+                        <span class="badge bg-danger" style="line-height: 1.5; height: auto;">ส่วนลด {{ $promotion->discount }} %</span>
+                        @else
+                           <div></div>
+                        @endif
+                    
+                    </div>
+                    
+                    
+                    
+                    <div class="d-flex">
+                        @if ($promotion_valid)
+                        <p class="price text-decoration-line-through fw-lighter">{{ $product->selling_price }} Bath</p>
+                        <p class="price px-2">{{ $product->selling_price - ($product->selling_price * $promotion->discount / 100) }} Bath</p>
+                        @else
+                            <p class="price  px-2">{{ $product->selling_price }} Bath</p>
+                         @endif
+                        
+                    </div>
+
+
                     <form id="productForm" action="{{ route('cart.add') }}" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                         <input type="hidden" name="name" value="{{ $product->stock_name }}">
-                        <input type="hidden" name="price" value="{{ $product->selling_price }}">
                         <input type="hidden" id="selectedColor" name="color">
                         <input type="hidden" id="selectedSize" name="size">
-            
+                        @if ($promotion_valid)
+                        <input type="hidden" name="discount_promotion" id="discount_promotion" value="{{ $promotion->discount}}">
+                        <input type="hidden" name="price" value="{{ $promotion_valid ? $product->selling_price * (1 - ($promotion->discount / 100)) : $product->selling_price }}">
+
+                        @else
+                        <input type="hidden" name="discount_promotion" id="discount_promotion" value="{{ null }}">
+                        <input type="hidden" name="price" value="{{ $product->selling_price }}">
+
+                         @endif
+
                         @if(isset($product->color_name))
                         <div class="option">
                             <label>Color:</label>

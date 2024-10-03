@@ -16,6 +16,8 @@ class CartController extends Controller
         $color = $request->input('color');
         $size = $request->input('size');
         $quantity = $request->input('quantity', 1);
+        $price = $request->input('price');
+        $discount_promotion = $request->input('discount_promotion');
 
     
         $productItem = DB::table('products')
@@ -42,7 +44,7 @@ class CartController extends Controller
             ->where('cart_id', $existingCartItem->cart_id)
             ->update([
                 'quantity' => $existingCartItem->quantity + $quantity,
-                'total_price' => ($existingCartItem->quantity + $quantity) * $productItem->selling_price,
+                'total_price' => ($existingCartItem->quantity + $quantity) *  $price,
                 'updated_at' => now(),
             ]);
 
@@ -58,11 +60,12 @@ class CartController extends Controller
                     'product_id' => $product_id,
                     'quantity' => $quantity,
                     'name' => $productItem->stock_name,
-                    'price' => $productItem->selling_price,
+                    'price' =>  $price,
                     'color' => $color,
                     'size' => $size,
-                    'total_price' => $productItem->selling_price * $quantity,
+                    'total_price' =>  $price * $quantity,
                     'image' => $productItem->product_img,
+                    'discount_promotion' => $request->discount_promotion != null ? $request->discount_promotion : null ,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -248,7 +251,6 @@ class CartController extends Controller
             }
         }   
     
-        //todo:: edit function นี้ ดึงตารางผิด
         public function updateQuantity($id) {
             $stock = DB::table('products')
                 ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id')

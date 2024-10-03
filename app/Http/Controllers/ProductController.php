@@ -58,6 +58,8 @@ class ProductController extends Controller
 
     public function Detailview($id) {
 
+        $promotion_valid = false;
+
         if (Auth::check()) {
             $product = DB::table('products')
             ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
@@ -73,11 +75,28 @@ class ProductController extends Controller
             )
             ->where('products.product_id', $id)
             ->first();
+            if ($product) {
+                $promotion = DB::table('promotion_data')
+                    ->where('stock_id', $product->stock_id)
+                    ->first();
+            
+                if ($promotion && $promotion->discount != null) {
+                    $promotion_valid = true;
+                } else {
+                    $promotion_valid = false;
+                }
+            } else {
+                $promotion = null; 
+                $promotion_valid = false; 
+            }
+            
+           
+        
         
         $sizes = DB::table('shirt_size_data')->get();
         $colors = DB::table('shirt_color')->get();
 
-        return view('frontend/product_detail', compact('product', 'sizes', 'colors'));
+        return view('frontend/product_detail', compact('product', 'sizes', 'colors','promotion','promotion_valid'));
         } else {
             return redirect()->route('login');
         }
@@ -92,7 +111,7 @@ class ProductController extends Controller
             'selling_price' => 'required',
             'category_id' => 'required',
             'color_id' => 'required',
-            'size_id' => 'required'
+            'size_id' => 'required',
         ], [
             'stock_id.required' => 'กรุณากรอกชื่อสินค้า',
             'product_img.required' => 'กรุณาเลือกรูปภาพสินค้า',
@@ -101,7 +120,7 @@ class ProductController extends Controller
             'selling_price.required' => 'กรุณากรอกราคาขาย',
             'category_id.required' => 'กรุณาเลือกประเภท',
             'color_id.required' => 'กรุณาเลือกสี',
-            'size_id.required' => 'กรุณาเลือกไซส์'
+            'size_id.required' => 'กรุณาเลือกไซส์',
         ]);
 
         $imageName = time() . '.' . $request->product_img->extension();
@@ -113,7 +132,7 @@ class ProductController extends Controller
             'color_id' => $request->color_id,
             'size_id' => $request->size_id,
             'cost_price' => $request->cost_price,
-            'selling_price' => $request->selling_price
+            'selling_price' => $request->selling_price,
         ];
 
         $request->product_img->move(public_path('images'), $imageName);

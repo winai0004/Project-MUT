@@ -12,32 +12,33 @@ class promotionController extends Controller
     //
     public function index()
     {
-        $promotion = DB::table('promotion_data')->get();
-
-        return view('admin/tables/promotion', compact('promotion'))
-        ->with('promotion',$promotion->map(function($item) {
-            $item->discount_price=number_format($item->discount_price, 2);
-            return $item;
-        }));
+        // ดึงข้อมูลจากตาราง promotion_data พร้อมเชื่อมกับ stock_items โดยใช้ stock_id
+        $promotion = DB::table('promotion_data')
+        ->join('stock_items', 'promotion_data.stock_id', '=', 'stock_items.stock_id') // เชื่อมด้วย stock_id
+        ->select('promotion_data.*', 'stock_items.name as stock_name') // ดึงข้อมูลจาก promotion_data และชื่อ stock
+        ->get();
+    
+        return view('admin/tables/promotion', compact('promotion'));
     }
+    
+
     public function create(){
-        return view('admin/form/promotionForm');
+        $stocks = DB::table('stock_items')->get();
+
+        
+        return view('admin/form/promotionForm',compact('stocks'));
     }
     
     public function insert(Request $request)
     {
         $request->validate([
-            'promotion_name' => 'required',
-            'discount_price' => 'required'
-        ],
-        [
-            'promotion_name.required' => 'กรุณากรอกโปรโมชั่น',
-            'discount_price.required' => 'กรุณากรอกลดราคา' 
+            'stock_id' => 'nullable',
+            'discount' => 'nullable'
         ]);
 
         $data = [
-            'promotion_name'=>$request->promotion_name,
-            'discount_price'=>$request->discount_price
+            'stock_id'=>$request->stock_id,
+            'discount'=>$request->discount
         ];
         
         DB::table('promotion_data')->insert($data);
@@ -52,27 +53,33 @@ class promotionController extends Controller
     }
 
 
-    public function edit($id){
-        $promotion = DB::table('promotion_data')->where('promotion_id',$id)->first();
-        return view('admin/form/promotionEdit', compact('promotion'));
-    }    
+    public function edit($id) {
+        // ดึงข้อมูลโปรโมชันพร้อมชื่อสินค้าที่เกี่ยวข้อง
+        $promotion = DB::table('promotion_data')
+            ->join('stock_items', 'promotion_data.stock_id', '=', 'stock_items.stock_id') // เชื่อมด้วย stock_id
+            ->select('promotion_data.*', 'stock_items.name as stock_name') // ดึงข้อมูล promotion_data และชื่อสินค้าจาก stock_items
+            ->where('promotion_data.promotion_id', $id)
+            ->first();
+    
+        // ดึงรายการสินค้าทั้งหมดจาก stock_items สำหรับแสดงใน select box
+        $stocks = DB::table('stock_items')->get();
+    
+        return view('admin/form/promotionEdit', compact('promotion', 'stocks')); // ส่งทั้ง promotion และ stocks ไปที่ view
+    }
     
 
     public function update(Request $request,$id){
 
         $request->validate([
-            'promotion_name' => 'required',
-            'discount_price' => 'required'
-        ],
-        [
-            'promotion_name.required' => 'กรุณากรอกโปรโมชั่น',
-            'discount_price.required' => 'กรุณากรอกลดราคา' 
+            'stock_id' => 'nullable',
+            'discount' => 'nullable'
         ]);
 
         $data = [
-            'promotion_name'=>$request->promotion_name,
-            'discount_price'=>$request->discount_price
+            'stock_id'=>$request->stock_id,
+            'discount'=>$request->discount
         ];
+        
         
         DB::table('promotion_data')->where('promotion_id',$id)->update($data);;
         return redirect('admin/tables/promotion');

@@ -12,9 +12,8 @@
     <table id="example" class="table table-striped border" style="width:100%">
     <thead>
         <tr>
-            <th>Promotion ID</th>
-            <th>Promotion Name</th>
-            <th>Discount Price</th>
+            <th>ProductName</th>
+            <th>Discount</th>
             <th>edit</th>
             <th>delete</th>
         </tr>
@@ -22,11 +21,10 @@
         <tbody>
             @foreach($promotion as $item)
                 <tr>
-                    <td>{{$item->promotion_id}}</td>
-                    <td>{{$item->promotion_name}}</td>
-                    <td>{{$item->discount_price}}</td>
-                    <td style="width:50px;"><a href="{{ route('edit_promotion' ,$item->promotion_id)}}" class="btn btn-warning btn-sm" >edit</a></td>
-                    <td style="width:50px;"><a href="{{ route('delete_promotion' ,$item->promotion_id)}}" class="btn btn-danger btn-sm" onclick="return confirm(`คุณต้องการลบ {{$item->promotion_name}} หรือไม่?`)">delete</a></td>          
+                    <td>{{$item->stock_name}}</td>
+                    <td>{{$item->discount . '%'}}</td>
+                    <td style="width:50px;"><a href="{{ route('edit_promotion' ,$item->promotion_id )}}" class="btn btn-warning btn-sm" >edit</a></td>
+                    <td style="width:50px;"><a href="{{ route('delete_promotion' ,$item->promotion_id )}}" class="btn btn-danger btn-sm" onclick="return confirm(`คุณต้องการลบ {{$item->stock_name}} หรือไม่?`)">delete</a></td>          
                 </tr>
             @endforeach
         </tbody>

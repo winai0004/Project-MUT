@@ -103,7 +103,7 @@ body {
 }
 
 .sidebar-nav {
-    padding: 2rem 0;
+    padding: 1rem 0;
     flex: 1 1 auto;
 }
 
@@ -233,6 +233,12 @@ a.sidebar-link:hover {
                     <a href="{{ route('stock_items')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
                         <span>Stock</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('report')}}" class="sidebar-link">
+                        <i class="lni lni-user"></i>
+                        <span>Report</span>
                     </a>
                 </li>
                 {{-- <li class="sidebar-item">

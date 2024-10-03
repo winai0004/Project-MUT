@@ -60,7 +60,15 @@
                                     <td>{{ $item['color'] }}</td>
                                     <td>{{ $item['size'] }}</td>
                                     <td>{{ $item['quantity'] }}</td>
-                                    <td>{{ number_format($item['total_price'], 2) }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {{ number_format($item['total_price'], 2) }}
+                                            @if ($item['discount_promotion'] != null)
+                                                <span class="badge bg-danger ms-2">ส่วนลด {{ $item['discount_promotion'] }} %</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                        
                                     <td>{{ $order->address }}</td>
                                     <td>{{ $order->telephone }}</td>
                                 </tr>

@@ -11,21 +11,26 @@
             <div class="form">
                 <form method="post" action="{{ route('insert_promotion') }}" class="mt-5 border p-4 bg-light shadow">
                 @csrf
-                    <h4 class="mb-3 text-secondary">เพิ่มข้อมูลโปรชั่น</h4>
+                    <h4 class="mb-3 text-secondary">เพิ่มข้อมูลลดราคาสินค้าโปรโมชั่น</h4>
                     <div class="row">
                         <div class="mb-3 col-md-12">
-                            <label>โปรโมชั่น<span class="text-danger">*</span></label>
-                            <input type="text" name="promotion_name" class="form-control" >
-                        </div>
-                        @error('title')
-                            <div class="mb-1">
+                            <label>ชื่อสินค้า <span class="text-danger">*</span></label>
+                            <select id="productSelect" name="stock_id" class="form-select" aria-label="Default select example">
+                                <option selected>เลือกชื่อสินค้า</option>
+                                @foreach($stocks as $stock)
+                                    <option value="{{ $stock->stock_id }}">{{ $stock->name }}</option> <!-- ใช้ stock_id แทน id -->
+                                @endforeach
+                            </select>                                                              
+                            @error('product_name')
                                 <span class="text-danger">{{$message}}</span>
-                            </div>
-                        @enderror
-                        <div class="mb-3 col-md-6">
-                            <label>ลดราคา<span class="text-danger">*</span></label>
-                            <input type="number" name="discount_price" class="form-control">
-                            @error('discount_price')
+                            @enderror
+                        </div>
+
+
+                        <div class="mb-3 col-md-12">
+                            <label>สินค้าลดราคา (คิดเป็นเปอร์เซนต์)<span class="text-danger">*</span></label>
+                            <input type="number" name="discount" class="form-control">
+                            @error('discount')
                                 <span class="text-danger">{{$message}}</span>
                             @enderror
                         </div>

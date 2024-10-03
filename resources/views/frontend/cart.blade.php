@@ -279,8 +279,8 @@ $(document).ready(function(){
 
     updateQuantity(productId).done(function(response) {
         if (response.success) {
-            alert('สินค้าหมดสต็อก');
-            quantity--;
+            alert(response.message);
+            // quantity--;
         } else {
             quantity++;
             updateCartItem(cartId, quantity, true);
@@ -307,26 +307,17 @@ $(document).ready(function(){
         alert('ซื้อขั้นต่ำ 1 ชิ้น');
         return;
     } else {
-        // ตรวจสอบสต็อกและอัปเดตตะกร้า
-        updateQuantity(productId).done(function(response) {
-            if (response.success) {
-                alert(response.message);  // ถ้ามีปัญหาสต็อกไม่พอ
-            } else {
-                quantity--; 
-                quantitySpan.text(quantity); 
 
-                // คำนวณราคาใหม่
-                let newTotalPrice = (price * quantity).toFixed(2);
-                let formattedPrice = parseFloat(newTotalPrice).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        quantity--; 
+        quantitySpan.text(quantity); 
 
-                // อัปเดตราคาสินค้ารวม
-                $row.find('.total-price').text('฿' + formattedPrice); 
+        let newTotalPrice = (price * quantity).toFixed(2);
+        let formattedPrice = parseFloat(newTotalPrice).toLocaleString('en-US', { minimumFractionDigits: 2 });
 
-                // อัปเดตข้อมูลในตะกร้า
-                updateCartItem(cartId, quantity, false);
-                fetchCartTotals();
-            }
-        });
+        $row.find('.total-price').text('฿' + formattedPrice); 
+
+        updateCartItem(cartId, quantity, false);
+        fetchCartTotals();
     }
 });
 

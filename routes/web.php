@@ -106,7 +106,7 @@ Route::get('admin/form/promotionForm', [promotionController::class, 'create'])->
 Route::post('admin/form/promotionForm', [promotionController::class, 'insert'])->name('insert_promotion');
 Route::get('admin/promotion/edit/{id}', [promotionController::class, 'edit'])->name('edit_promotion');
 Route::get('admin/promotion/delete/{id}', [promotionController::class, 'delete'])->name('delete_promotion');
-Route::post('admin/promotion/update/{id}', [promotionController::class, 'update'])->name('update_promotion');
+Route::put('admin/promotion/update/{id}', [promotionController::class, 'update'])->name('update_promotion');
 
 
 //advert
@@ -158,6 +158,10 @@ Route::post('admin/form/stockForm', [stockController::class, 'store'])->name('st
 Route::get('admin/form/stockEdit/{id}', [stockController::class, 'edit'])->name('stock_edit');
 Route::put('admin/stock/update/{id}', [stockController::class, 'update'])->name('stock_update');
 Route::delete('admin/stock/delete/{id}', [stockController::class, 'destroy'])->name('stock_delete');
+
+
+//reports
+Route::get('admin/tables/report', [ReportSalesController::class, 'index'])->name('report');
 
 
 // //Cart
