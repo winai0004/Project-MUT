@@ -7,7 +7,6 @@
 <section class="py-5">
 
     <div class="container px-4 px-lg-5">
-
         <h1>Shopping Cart</h1>
             <div class="d-flex align-items-start flex-row ">
                 <div class="flex-1 w-100 mt-3">
@@ -38,7 +37,6 @@
                                         </tr>
                                         @break
                                     @else
-
                                         <tr data-index="{{ $index }}">
                                             <td>{{ $item->name }}</td>
                                             <td>{{ $item->color }}</td>
