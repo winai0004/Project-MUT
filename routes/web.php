@@ -19,6 +19,9 @@ use App\Http\Controllers\Sale_ProductController;
 use App\Http\Controllers\Order_ProductDetailController;
 use App\Http\Controllers\Order_itemController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\ReportStockController;
+use App\Http\Controllers\UnsoldProductsReportController;
+use App\Http\Controllers\PromotionReportController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -150,6 +153,14 @@ Route::post('admin/sale_products/update/{id}', [Sale_ProductController::class, '
 //reportsales
 Route::get('admin/tables/reportsales', [reportsalesController::class, 'index'])->name('reportsales');
 
+//reportstock
+Route::get('admin/tables/reportstock', [ReportStockController::class, 'index'])->name('reportstock');
+
+//report unsold
+Route::get('admin/tables/reportunsold', [UnsoldProductsReportController::class, 'index'])->name('reportunsold');
+
+//report promotion
+Route::get('admin/tables/reportpromotion', [PromotionReportController::class, 'index'])->name('reportpromotion');
 
 //stock
 Route::get('admin/tables/stock', [stockController::class, 'index'])->name('stock_items');

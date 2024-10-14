@@ -211,7 +211,7 @@ a.sidebar-link:hover {
                         <span>Membership Level</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+                {{-- <li class="sidebar-item">
                     <a href="{{ route('sale_products')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
                         <span>Sale Product</span>
@@ -222,7 +222,7 @@ a.sidebar-link:hover {
                         <i class="lni lni-user"></i>
                         <span>Order Product</span>
                     </a>
-                </li>
+                </li> --}}
                 <li class="sidebar-item">
                     <a href="{{ route('order_shopping')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
@@ -238,7 +238,25 @@ a.sidebar-link:hover {
                 <li class="sidebar-item">
                     <a href="{{ route('report')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
-                        <span>Report</span>
+                        <span>Report Sale</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('reportstock')}}" class="sidebar-link">
+                        <i class="lni lni-user"></i>
+                        <span>Report stock</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('reportunsold')}}" class="sidebar-link">
+                        <i class="lni lni-user"></i>
+                        <span>Report Product unsold</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('reportpromotion')}}" class="sidebar-link">
+                        <i class="lni lni-user"></i>
+                        <span>Report Promotion</span>
                     </a>
                 </li>
                 {{-- <li class="sidebar-item">
