@@ -21,7 +21,7 @@ use App\Http\Controllers\Order_itemController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ReportStockController;
 use App\Http\Controllers\UnsoldProductsReportController;
-use App\Http\Controllers\PromotionReportController;
+use App\Http\Controllers\PromotionsReportController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -159,8 +159,7 @@ Route::get('admin/tables/reportstock', [ReportStockController::class, 'index'])-
 //report unsold
 Route::get('admin/tables/reportunsold', [UnsoldProductsReportController::class, 'index'])->name('reportunsold');
 
-//report promotion
-Route::get('admin/tables/reportpromotion', [PromotionReportController::class, 'index'])->name('reportpromotion');
+Route::get('admin/tables/promotionsreport', [PromotionsReportController::class, 'index'])->name('promotionsreport');
 
 //stock
 Route::get('admin/tables/stock', [stockController::class, 'index'])->name('stock_items');
