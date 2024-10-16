@@ -61,32 +61,7 @@
                             </div>
                         </div>
                        
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label>ไซส์<span class="text-danger">*</span></label>
-                                <select name="size_id" class="form-select" aria-label="Default select example">
-                                    <option selected disabled>เลือกไซส์</option>
-                                      @foreach($sizes as $size)
-                                       <option value="{{ $size->size_id }}" @if($size->size_id == $sizeId) selected @endif>{{ $size->size_name }}</option>
-                                     @endforeach
-                               </select>                           
-                                @error('size_id')
-                                    <span class="text-danger">{{$message}}</span>
-                                @enderror
-                        </div>
-                            <div class="mb-3 col-md-6">
-                                <label>สี<span class="text-danger">*</span></label>
-                                <select name="color_id" class="form-select" aria-label="Default select example">
-                                    <option selected disabled>เลือกสี</option>
-                                      @foreach($colors as $color)
-                                       <option value="{{ $color->color_id }}" @if($color->color_id == $colorId) selected @endif>{{ $color->color_name }}</option>
-                                     @endforeach
-                               </select>
-                                @error('color_id')
-                                    <span class="text-danger">{{$message}}</span>
-                                @enderror
-                            </div>
-                        </div>
+                       
                         
                         <div class="mb-3 col-md-12">
                             <label>เปลี่ยนรูปภาพ<span class="text-danger">*</span></label>

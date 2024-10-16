@@ -60,32 +60,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="mb-3 col-md-6">
-                                    <label>ไซส์<span class="text-danger">*</span></label>
-                                    <select name="size_id" class="form-select" aria-label="Default select example">
-                                        <option selected>เลือกไซส์</option>
-                                    @foreach($sizes as $size)
-                                        <option value="{{ $size->size_id }}">{{ $size->size_name }}</option>
-                                    @endforeach
-                                    </select>
-                                    @error('size_id')
-                                        <span class="text-danger">{{$message}}</span>
-                                    @enderror
-                                </div>
-                                <div class="mb-3 col-md-6">
-                                    <label>สี<span class="text-danger">*</span></label>
-                                    <select name="color_id" class="form-select" aria-label="Default select example">
-                                        <option selected>เลือกสี</option>
-                                    @foreach($colors as $color)
-                                        <option value="{{ $color->color_id }}">{{ $color->color_name }}</option>
-                                    @endforeach
-                                    </select>
-                                    @error('color_id')
-                                        <span class="text-danger">{{$message}}</span>
-                                    @enderror
-                                </div>
-                            </div>
+                           
                             
                             <div class="mb-3 col-md-12">
                                 <label>รูปสินค้า<span class="text-danger">*</span></label>

@@ -17,8 +17,6 @@
             <th>Product Picture</th>
             <th>Cost Price</th>
             <th>Selling Price</th>
-            <th>Color</th>
-            <th>Size</th>
             <th>Type</th>
             <th>edit</th>
             <th>delete</th>
@@ -34,8 +32,6 @@
                     </td>
                     <td>{{$item->selling_price}}</td>
                     <td>{{$item->cost_price}}</td>
-                    <td>{{$item->color_name}}</td>
-                    <td>{{$item->size_name}}</td>
                     <td>{{$item->category_name}}</td>
                     {{-- <td>
                         @if(property_exists($item, 'color_name'))

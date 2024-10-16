@@ -45,8 +45,6 @@ class UnsoldProductsReportController extends Controller
             return [
                 'product_id' => $product->stock_id, // ใช้ stock_id แทน product_id
                 'product_name' => $product->name,
-                // 'image' => $product->image ?? 'default.jpg',
-                'image' => isset($product->image) ? $product->image : 'default.jpg',
                 'quantity' => $product->quantity, // จำนวนที่มีอยู่ใน Stock
             ];
         });

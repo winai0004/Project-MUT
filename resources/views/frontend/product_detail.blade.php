@@ -127,7 +127,7 @@
 
                          @endif
 
-                        @if(isset($product->color_name))
+                        @if(isset($colors))
                         <div class="option">
                             <label>Color:</label>
                             <br>
@@ -137,7 +137,7 @@
                         </div>
                         @endif
             
-                        @if(isset($product->size_name))
+                        @if(isset($sizes))
                         <div class="option">
                             <label>Size:</label>
                             <br>

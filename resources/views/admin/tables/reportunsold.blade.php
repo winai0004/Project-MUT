@@ -18,7 +18,6 @@
             <thead>
                 <tr>
                     <th>ลำดับ</th>
-                    <th>รูปภาพ</th>
                     <th>ชื่อสินค้า</th>
                     <th>จำนวนที่มีอยู่ใน Stock</th>
                 </tr>
@@ -33,11 +32,7 @@
                                  alt="{{ $item['product_name'] }}" 
                                  style="width:100px; height:auto;">
                         </td> --}}
-                        <td>
-                            <img src="{{ asset('images/' . $item['image']) }}" 
-                                 {{-- alt="Item Image"  --}}
-                                 style="width:100px; height:auto;">
-                        </td>
+                       
                         <td>{{ $item['product_name'] }}</td>
                         <td>{{ $item['quantity'] }}</td>
                     </tr>
