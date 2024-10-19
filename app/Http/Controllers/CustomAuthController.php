@@ -15,24 +15,24 @@ class CustomAuthController extends Controller
     {
         return view('auth.login');
     }
+
+
     public function customLogin(Request $request, $status)
     {
-
-        // dd($status);
         $request->validate([
             'email' => 'required',
             'password' => 'required',
         ]);
-        $credentials = $request->only('email', 'password');
-        if (Auth::attempt($credentials)) {
 
-            $user = User::where('email', $request->email)->first();
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
 
             if ($status == 1 && $user->status == 1) {
                 return redirect()->route('admin')
                     ->withSuccess('Signed in');
             } else if ($status == 2 && $user->status == 2) {
-
                 return redirect()->intended('/')
                     ->withSuccess('Signed in');
             } else {
@@ -40,8 +40,13 @@ class CustomAuthController extends Controller
                     'email' => 'User is not active or not found.',
                 ]);
             }
+        } else {
+            return redirect()->back()->withInput($request->only('email'))->withErrors([
+                'email' => 'Email or password is incorrect.',
+            ]);
         }
     }
+
 
     public function registration()
     {
