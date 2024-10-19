@@ -1,39 +1,48 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use League\CommonMark\Extension\SmartPunct\EllipsesParser;
+
 class CustomAuthController extends Controller
 {
     public function index()
     {
         return view('auth.login');
     }
-    public function customLogin(Request $request,$status)
+    public function customLogin(Request $request, $status)
     {
+
+        // dd($status);
         $request->validate([
             'email' => 'required',
             'password' => 'required',
         ]);
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
-            if ($status==1){
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($status == 1 && $user->status == 1) {
                 return redirect()->route('admin')
-                ->withSuccess('Signed in');
-            }
-            else{
+                    ->withSuccess('Signed in');
+            } else if ($status == 2 && $user->status == 2) {
+
                 return redirect()->intended('/')
-                ->withSuccess('Signed in');
+                    ->withSuccess('Signed in');
+            } else {
+                return redirect()->back()->withInput($request->only('email'))->withErrors([
+                    'email' => 'User is not active or not found.',
+                ]);
             }
         }
-
-        return redirect()->back()->withInput($request->only('email'))->withErrors([
-            'email' => 'These credentials do not match our records.',
-        ]);
-        // return redirect("login")->withSuccess('Login details are not valid');
     }
+
     public function registration()
     {
         return view('auth.register');
