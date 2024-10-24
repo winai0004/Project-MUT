@@ -8,8 +8,22 @@
     <div class="overflow-auto p-3 bg-light" style="max-height: 600px;">
         <!-- ฟอร์มสำหรับเลือกวันที่ในการค้นหา -->
         <form action="{{ route('reportstock') }}" method="GET" class="mb-2">
-            <label for="day">เลือกวันที่ต้องการค้นหา:</label>
-            <input type="date" id="day" name="day" value="{{ $selectedDate ?? '' }}">
+            <label for="start_date">เลือกวันที่เริ่มต้น:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ $startDate ?? '' }}">
+
+            <label for="end_date">เลือกวันที่สิ้นสุด:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ $endDate ?? '' }}">
+
+            <label for="category">เลือกประเภทสินค้า:</label>
+            <select id="category" name="category">
+                <option value="">-- ทุกประเภท --</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category->category_id }}" {{ (isset($selectedCategory) && $selectedCategory == $category->category_id) ? 'selected' : '' }}>
+                        {{ $category->category_name }}
+                    </option>
+                @endforeach
+            </select>
+
             <input type="submit" value="ค้นหา">
         </form>
 
@@ -21,7 +35,6 @@
                     <th>ชื่อสินค้า</th>
                     <th>จำนวนที่สั่งซื้อเข้า Stock</th>
                     <th>ราคาต่อหน่วย</th>
-                    <th>Stock Order</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,7 +45,6 @@
                         <td>{{ $item['name'] }}</td>
                         <td>{{ $item['total_quantity'] }}</td>
                         <td>{{ number_format($item['price'], 2) }} บาท</td>
-                        <td>{{ $item['stock_order'] }}</td>
                     </tr>
                 @endforeach
             </tbody>

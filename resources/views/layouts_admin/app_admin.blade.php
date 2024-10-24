@@ -259,7 +259,12 @@ a.sidebar-link:hover {
                         <span>Report Promotions</span>
                     </a>
                 </li>
-                
+                <li class="sidebar-item">
+                    <a href="{{ route('costreport')}}" class="sidebar-link">
+                        <i class="lni lni-user"></i>
+                        <span>Report Costprice</span>
+                    </a>
+                </li>
                 {{-- <li class="sidebar-item">
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                         data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
