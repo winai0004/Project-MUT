@@ -16,20 +16,20 @@
                         <h4 class="mb-3 text-secondary">แก้ไขข้อมูลลดราคาสินค้าโปรโมชั่น</h4>
                         
                         <div class="row">
+                          
+
                             <div class="mb-3 col-md-12">
                                 <label>ชื่อสินค้า <span class="text-danger">*</span></label>
-                                <select id="productSelect" name="stock_id" class="form-select" aria-label="Default select example">
-                                    <option selected>เลือกชื่อสินค้า</option>
-                                    @foreach($stocks as $stock)
-                                        <option value="{{ $stock->stock_id }}" {{ $stock->stock_id == $promotion->stock_id ? 'selected' : '' }}>
-                                            {{ $stock->name }}
-                                        </option> <!-- แสดงสินค้าที่เลือกแล้ว -->
+                                <select id="productSelect" name="product_id" class="form-select" aria-label="Default select example" readonly>
+                                    @foreach($products as $product)
+                                        <option value="{{ $product->product_id }}">{{ $product->product_name }}</option> <!-- ใช้ stock_id แทน id -->
                                     @endforeach
-                                </select>
-                                @error('stock_id')
+                                </select>                                                              
+                                @error('product_id')
                                     <span class="text-danger">{{$message}}</span>
                                 @enderror
                             </div>
+                           
 
                             <div class="mb-3 col-md-12">
                                 <label>สินค้าลดราคา (คิดเป็นเปอร์เซนต์) <span class="text-danger">*</span></label>

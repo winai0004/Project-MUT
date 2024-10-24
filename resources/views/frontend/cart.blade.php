@@ -248,6 +248,9 @@ $(document).ready(function(){
         var cartId = $(this).data('cart-id'); // ดึง cart_id จาก data attribute
         var row = $(this).closest('tr'); // ดึง row ที่เกี่ยวข้อง
 
+        console.log(row);
+
+
         if (confirm('Are you sure you want to delete this item?')) {
             $.ajax({
                 url: '/cart/delete/' + cartId, // ส่งคำขอไปที่เส้นทางนี้

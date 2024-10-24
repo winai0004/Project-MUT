@@ -88,7 +88,7 @@
                 <div class="product-info">
                     <div class="d-flex align-items-center"> <!-- จัดให้อยู่ตรงกลางในแนวแกน y -->
                         <div>
-                            <h1 class="px-2">{{ $product->stock_name }}</h1>
+                            <h1 class="px-2">{{ $product->product_name }}</h1>
                         </div>
                         @if ($promotion_valid)
                         <span class="badge bg-danger" style="line-height: 1.5; height: auto;">ส่วนลด {{ $promotion->discount }} %</span>
@@ -114,9 +114,9 @@
                     <form id="productForm" action="{{ route('cart.add') }}" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-                        <input type="hidden" name="name" value="{{ $product->stock_name }}">
-                        <input type="hidden" id="selectedColor" name="color">
-                        <input type="hidden" id="selectedSize" name="size">
+                        <input type="hidden" name="name" value="{{ $product->product_name }}">
+                        <input type="hidden" id="color" name="color" value="{{$product->color_name}}">
+                        <input type="hidden" id="size" name="size" value="{{ $product->size_name}}">
                         @if ($promotion_valid)
                         <input type="hidden" name="discount_promotion" id="discount_promotion" value="{{ $promotion->discount}}">
                         <input type="hidden" name="price" value="{{ $promotion_valid ? $product->selling_price * (1 - ($promotion->discount / 100)) : $product->selling_price }}">
@@ -127,26 +127,15 @@
 
                          @endif
 
-                        @if(isset($colors))
-                        <div class="option">
-                            <label>Color:</label>
-                            <br>
-                            @foreach($colors as $color)
-                            <button type="button" class="color-btn mb-3" data-color="{{ $color->color_name }}">{{ $color->color_name }}</button>
-                            @endforeach
-                        </div>
-                        @endif
-            
-                        @if(isset($sizes))
-                        <div class="option">
-                            <label>Size:</label>
-                            <br>
-                            @foreach($sizes as $size)
-                            <button type="button" class="size-btn mb-3" data-size="{{ $size->size_name }}">{{ $size->size_name }}</button>
-                            @endforeach
-                        </div>
-                        @endif
-            
+                         <h3>รายละเอียด</h3>
+
+                         <h5>
+                            สี:  {{ $product->color_name }}
+                         </h5>
+
+                          <h5> ขนาดไซส์: {{ $product->size_name }}</h5>
+                      
+                        <br>
                         <button type="submit" class="add-to-cart-btn" id="btn_cart">Add to Cart</button>
                     </form>
                 </div>
@@ -156,61 +145,5 @@
     </div>
 </section>
 
-<script>
 
-$(document).ready(function() {
-    var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-
-    $('.color-btn').on('click', function() {
-        var selectedColor = $(this).data('color');
-        $(this).addClass('selected').siblings().removeClass('selected');
-        localStorage.setItem('selectedColor', selectedColor);
-    });
-
-    $('.size-btn').on('click', function() {
-        var selectedSize = $(this).data('size');
-        $(this).addClass('selected').siblings().removeClass('selected');
-        localStorage.setItem('selectedSize', selectedSize);
-    });
-    
-
-    $('#btn_cart').on('click', function(e) {
-    e.preventDefault();
-
-        var color = $('#selectedColor').val();
-        var size = $('#selectedSize').val();
-
-        if (color === '' || size === '') {
-            alert('Please select color and size before adding to cart.');
-            return;
-        }
-
-        // ส่งฟอร์มถ้าผ่านการตรวจสอบ
-        $('#productForm').submit();
-    });
-
-
-});
-    // Color button click event
-    document.querySelectorAll('.color-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
-            document.querySelector('input[name="color"]').value = this.getAttribute('data-color');
-            document.querySelectorAll('.color-btn').forEach(function(btn) {
-                btn.classList.remove('selected');
-            });
-            this.classList.add('selected');
-        });
-    });
-
-    // Size button click event
-    document.querySelectorAll('.size-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
-            document.querySelector('input[name="size"]').value = this.getAttribute('data-size');
-            document.querySelectorAll('.size-btn').forEach(function(btn) {
-                btn.classList.remove('selected');
-            });
-            this.classList.add('selected');
-        });
-    });
-</script>
 @endsection

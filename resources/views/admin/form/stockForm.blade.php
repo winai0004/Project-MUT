@@ -15,20 +15,27 @@
                         <div class="row">
                             <div class="mb-3 col-md-12">
                                 <label>ชื่อสินค้า<span class="text-danger">*</span></label>
-                                <input type="text" name="name" class="form-control">
-                                @error('name')
+                                <select name="product_id" id="productSelect" class="form-select" aria-label="Default select example">
+                                    <option selected disabled>เลือกชื่อสินค้า</option>
+                                    @foreach($products as $product)
+                                        <option value="{{ $product->product_id }}" data-price="{{ $product->cost_price }}">
+                                            {{ $product->product_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('product_id')
                                     <span class="text-danger">{{$message}}</span>
                                 @enderror
+                            </select>
                             </div>
+                            
                             
                             <div class="row">
                                 <div class="mb-3 col-md-6">
                                     <label>ราคาทุน<span class="text-danger">*</span></label>
-                                    <input type="number" name="price" class="form-control">
-                                    @error('price')
-                                        <span class="text-danger">{{$message}}</span>
-                                    @enderror
+                                    <input type="text" id="cost_price" name="cost_price" class="form-control" readonly>
                                 </div>
+
                                 <div class="mb-3 col-md-6">
                                     <label>จำนวน<span class="text-danger">*</span></label>
                                     <input type="number" name="quantity" class="form-control">
@@ -38,13 +45,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3 col-md-12">
-                                <label>ชื่อพนักงาน<span class="text-danger">*</span></label>
-                                <input type="text" name="employee_name" class="form-control">
-                                @error('employee_name')
-                                    <span class="text-danger">{{$message}}</span>
-                                @enderror
-                            </div>
+                       
 
                             <div class="row">
                                 <div class="mb-3 col-md-6">
@@ -63,15 +64,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3 col-md-6">
-                                <label>สถานะสต็อกสินค้า<span class="text-danger">*</span></label>
-                                <select class="form-select" name="status" aria-label="Default select example">
-                                    <option value="0">Pending</option>
-                                    <option value="1">Success</option>
-                                    <option value="2">Failed</option>
-                                </select>
-                                
-                            </div>
+                           
 
                            
                             
@@ -88,4 +81,19 @@
     </div>
 </div>
 
+
+<script>
+    $(document).ready(function() {
+        $('#productSelect').on('change', function() {
+            // Get selected product price
+            var costPrice = $(this).find('option:selected').data('price');
+            
+            // Update the cost price field
+            $('#cost_price').val(costPrice);
+        });
+    });
+</script>
+
 @endsection
+
+

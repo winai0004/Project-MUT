@@ -12,14 +12,12 @@
     <table id="example" class="table table-striped border" style="width:100%">
         <thead>
             <tr>
-                <th>รหัส</th>
+                <th>ไอดี</th>
                 <th>ชื่อสินค้า</th>
                 <th>ราคาทุน</th>
                 <th>จำนวน</th>
-                <th>พนักงานที่สั่งซื้อ</th>
                 <th>วันที่รับ</th>
                 <th>เวลาที่รับ</th>
-                <th>สถานะ</th>
                
                 <th>แก้ไข</th>
                 <th>ลบ</th>
@@ -28,25 +26,16 @@
         <tbody>
             @foreach($data as $item)
                 <tr>
-                    <td>{{$item->stock_order}}</td>
-                    <td>{{$item->name}}</td>
-                    <td>{{$item->price}}</td>
+                    <td>{{$item->stock_id}}</td>
+                    <td>{{$item->product_name}}</td>
+                    <td>{{$item->cost_price}}</td>
                     <td>{{$item->quantity}}</td>
-                    <td>{{$item->employee_name}}</td>
                     <td>{{$item->date_receiving}}</td>
                     <td>{{$item->time_receiving}}</td>
-                    <td style="width:50px;">
-                        @if($item->status == 0)
-                            <a href="#" class="btn btn-warning btn-sm">Pending</a>
-                        @elseif($item->status == 1)
-                            <a href="#" class="btn btn-success btn-sm">Success</a>
-                        @elseif($item->status == 2)
-                            <a href="#" class="btn btn-danger btn-sm">Failed</a>
-                        @endif
-                    </td>          
+                       
                     <td><a href="{{ route('stock_edit', $item->stock_id)}}" class="btn btn-warning btn-sm">แก้ไข</a></td>
                     <td>
-                        <form action="{{ route('stock_delete', $item->stock_id) }}" method="POST" onsubmit="return confirm('คุณต้องการลบ {{$item->name}} หรือไม่?')">
+                        <form action="{{ route('stock_delete', $item->stock_id) }}" method="POST" onsubmit="return confirm('คุณต้องการลบ {{$item->product_name}} หรือไม่?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm">ลบ</button>

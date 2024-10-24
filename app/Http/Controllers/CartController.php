@@ -19,10 +19,11 @@ class CartController extends Controller
         $price = $request->input('price');
         $discount_promotion = $request->input('discount_promotion');
 
+
     
         $productItem = DB::table('products')
-        ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id')
-        ->select('products.*', 'stock_items.name as stock_name' , 'stock_items.quantity as stock_quantity' , 'stock_items.stock_id as stock_stock_id') 
+        ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
+        ->select('products.*', 'stock_items.product_id as stock_name' , 'stock_items.quantity as stock_quantity' , 'stock_items.stock_id as stock_stock_id') 
         ->where('products.product_id', $product_id) 
         ->first();
         
@@ -118,19 +119,19 @@ class CartController extends Controller
         }
     
         // ดึงข้อมูลสินค้าจากตาราง products และ stock_items
-        $productItem = DB::table('products')
-            ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id')
-            ->select('products.*', 'stock_items.stock_id as stock_stock_id') 
-            ->where('products.product_id', $cartItem->product_id) 
-            ->first();
+        // $productItem = DB::table('products')
+        //     ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
+        //     ->select('products.*', 'stock_items.product_id as product_id') 
+        //     ->where('products.product_id', $cartItem->product_id) 
+        //     ->first();
     
-        if (!$productItem) {
+        if (!$cartItem->product_id) {
             return response()->json(['error' => 'Product not found.'], 404);
         }
     
         // อัปเดตจำนวนสินค้าในตะกร้าและราคาทั้งหมด
         DB::table('cart_shopping')
-            ->where('cart_id', $cartId)
+            ->where('product_id', $cartItem->product_id)
             ->update([
                 'quantity' => $quantity,
                 'total_price' => DB::raw('price * ' . $quantity), // อัปเดตราคาตามจำนวน
@@ -139,13 +140,13 @@ class CartController extends Controller
     
             if ($checkMark) {
                 DB::table('stock_items')
-                    ->where('stock_id', $productItem->stock_stock_id)
+                    ->where('product_id', $cartItem->product_id)
                     ->update([
                         'quantity' => DB::raw('quantity - 1'),
                     ]);
             } else {
                 DB::table('stock_items')
-                    ->where('stock_id', $productItem->stock_stock_id)
+                    ->where('product_id', $cartItem->product_id)
                     ->update([
                         'quantity' => DB::raw('quantity + 1'),
                     ]);
@@ -167,13 +168,8 @@ class CartController extends Controller
             return response()->json(['error' => 'You do not have permission to delete this item.'], 403);
         }
     
-        $productItem = DB::table('products')
-            ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id')
-            ->select('products.*', 'stock_items.stock_id as stock_stock_id') 
-            ->where('products.product_id', $cartItem->product_id) 
-            ->first();
-    
-        if (!$productItem) {
+  
+        if (!$cartItem->product_id) {
             return response()->json(['error' => 'Product not found.'], 404);
         }
     
@@ -182,7 +178,7 @@ class CartController extends Controller
         $total_quantity = $cartItem->quantity;
 
         DB::table('stock_items')
-            ->where('stock_id', $productItem->stock_stock_id)
+            ->where('product_id', $cartItem->product_id)
             ->update([
                 'quantity' => DB::raw('quantity + ' . $total_quantity), 
             ]);
@@ -253,7 +249,7 @@ class CartController extends Controller
     
         public function updateQuantity($id) {
             $stock = DB::table('products')
-                ->leftJoin('stock_items', 'products.stock_id', '=', 'stock_items.stock_id')
+                ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
                 ->select('stock_items.quantity') 
                 ->where('products.product_id', $id) 
                 ->first();

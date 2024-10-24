@@ -21,10 +21,10 @@
         <tbody>
             @foreach($promotion as $item)
                 <tr>
-                    <td>{{$item->stock_name}}</td>
+                    <td>{{$item->product_name}}</td>
                     <td>{{$item->discount . '%'}}</td>
                     <td style="width:50px;"><a href="{{ route('edit_promotion' ,$item->promotion_id )}}" class="btn btn-warning btn-sm" >edit</a></td>
-                    <td style="width:50px;"><a href="{{ route('delete_promotion' ,$item->promotion_id )}}" class="btn btn-danger btn-sm" onclick="return confirm(`คุณต้องการลบ {{$item->stock_name}} หรือไม่?`)">delete</a></td>          
+                    <td style="width:50px;"><a href="{{ route('delete_promotion' ,$item->promotion_id )}}" class="btn btn-danger btn-sm" onclick="return confirm(`คุณต้องการลบ {{$item->product_name}} หรือไม่?`)">delete</a></td>          
                 </tr>
             @endforeach
         </tbody>

@@ -13,28 +13,21 @@
                         @csrf
                         <h4 class="mb-3 text-secondary">เพิ่มข้อมูลสินค้า</h4>
                         <div class="row">
-
                             <div class="mb-3 col-md-12">
-                                <label>ชื่อสินค้า <span class="text-danger">*</span></label>
-                                <select id="productSelect" name="stock_id" class="form-select" aria-label="Default select example">
-                                    <option selected>เลือกชื่อสินค้า</option>
-                                    @foreach($stocks as $stock)
-                                        <option value="{{ $stock->stock_id }}">{{ $stock->name }}</option> <!-- ใช้ stock_id แทน id -->
-                                    @endforeach
-                                </select>                                                              
+                                <label>ชื่อสินค้า<span class="text-danger">*</span></label>
+                                <input type="text" name="product_name" class="form-control">
                                 @error('product_name')
                                     <span class="text-danger">{{$message}}</span>
                                 @enderror
                             </div>
-
-
                             
                             <div class="row">
-                               <div class="mb-3 col-md-6">
-                                    <label>ราคาทุน <span class="text-danger">*</span></label>
-                                    <select id="priceSelect" name="cost_price" class="form-select">
-                                        <option selected>เลือกราคาทุน</option>
-                                    </select>
+                                <div class="mb-3 col-md-6">
+                                    <label>ราคาทุน<span class="text-danger">*</span></label>
+                                    <input type="number" name="cost_price" class="form-control">
+                                    @error('cost_price')
+                                        <span class="text-danger">{{$message}}</span>
+                                    @enderror
                                 </div>
                                 <div class="mb-3 col-md-6">
                                     <label>ราคาขาย<span class="text-danger">*</span></label>
@@ -60,7 +53,32 @@
                                     @enderror
                                 </div>
                             </div>
-                           
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label>ไซส์<span class="text-danger">*</span></label>
+                                    <select name="size_id" class="form-select" aria-label="Default select example">
+                                        <option selected>เลือกไซส์</option>
+                                    @foreach($sizes as $size)
+                                        <option value="{{ $size->size_id }}">{{ $size->size_name }}</option>
+                                    @endforeach
+                                    </select>
+                                    @error('size_id')
+                                        <span class="text-danger">{{$message}}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label>สี<span class="text-danger">*</span></label>
+                                    <select name="color_id" class="form-select" aria-label="Default select example">
+                                        <option selected>เลือกสี</option>
+                                    @foreach($colors as $color)
+                                        <option value="{{ $color->color_id }}">{{ $color->color_name }}</option>
+                                    @endforeach
+                                    </select>
+                                    @error('color_id')
+                                        <span class="text-danger">{{$message}}</span>
+                                    @enderror
+                                </div>
+                            </div>
                             
                             <div class="mb-3 col-md-12">
                                 <label>รูปสินค้า<span class="text-danger">*</span></label>
@@ -83,43 +101,4 @@
     </div>
 </div>
 
-
-<script>
-$(document).ready(function() {
-    $('#productSelect').change(function() {
-        var productId = $(this).val(); // ดึง stock_id ของสินค้าที่เลือก
-
-        if(productId) {
-            $.ajax({
-                url: '/get-product-price/' + productId, // เรียกใช้ route เพื่อติดต่อ controller
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    $('#priceSelect').empty(); 
-
-                    if (data.price) {
-                        var formattedPrice = parseFloat(data.price).toFixed(2); // แปลง int เป็น double (2 ตำแหน่งทศนิยม)
-
-                        $('#priceSelect').append('<option value="' + formattedPrice + '">' + formattedPrice + '</option>');
-                    } else {
-                        $('#priceSelect').append('<option selected>ไม่พบข้อมูลราคา</option>');
-                    }
-                },
-                error: function() {
-                    $('#priceSelect').empty(); // กรณีเกิดข้อผิดพลาด
-                    $('#priceSelect').append('<option selected>ไม่พบข้อมูลราคา</option>');
-                }
-            });
-        } else {
-            $('#priceSelect').empty();
-            $('#priceSelect').append('<option selected>เลือกราคาทุน</option>');
-        }
-    });
-});
-
-
-</script>
-
 @endsection
-
-
