@@ -23,6 +23,7 @@ use App\Http\Controllers\ReportStockController;
 use App\Http\Controllers\UnsoldProductsReportController;
 use App\Http\Controllers\PromotionsReportController;
 use App\Http\Controllers\ReportCostController;
+use App\Http\Controllers\SummarySaleReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -166,6 +167,9 @@ Route::get('admin/tables/promotionsreport', [PromotionsReportController::class, 
 
 //report Cost
 Route::get('admin/tables/costreport', [ReportCostController::class, 'index'])->name('costreport');
+
+//report summartsale
+Route::get('admin/tables/sumreport', [SummarySaleReportController::class, 'index'])->name('sumreport');
 
 //stock
 Route::get('admin/tables/stock', [stockController::class, 'index'])->name('stock_items');
