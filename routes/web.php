@@ -123,6 +123,9 @@ Route::get('admin/advert/edit/{id}', [advertController::class, 'edit'])->name('e
 Route::get('admin/advert/delete/{id}', [advertController::class, 'delete'])->name('delete_advert');
 Route::post('admin/advert/update/{id}', [advertController::class, 'update'])->name('update_advert');
 
+Route::get('/', [advertController::class, 'view'])->name('view');
+
+
 //Order Product
 Route::get('admin/tables/order_products', [Order_itemController::class, 'index'])->name('order_products');
 Route::get('admin/form/order_productsForm', [Order_itemController::class, 'create'])->name('form_order_products');
@@ -225,3 +228,5 @@ Route::get('frontend/product_detail/{id}', [ProductController::class, 'Detailvie
 Route::get('admin', function () {
     return view('admin/index');
 })->name('admin');
+
+

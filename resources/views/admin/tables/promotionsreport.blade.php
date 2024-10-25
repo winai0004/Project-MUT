@@ -22,12 +22,13 @@
             <tbody>
                 @php $counter = 1; @endphp
                 @foreach($groupedItems as $item)
-                    <tr>
-                        <th scope="row">{{ $counter++ }}</th>
-                        <td>{{ $item['product_name'] }}</td>
-                        <td>{{ $item['discount'] }} %</td> <!-- แสดงส่วนลด -->
-                    </tr>
-                @endforeach
+                <tr>
+                    <th scope="row">{{ $counter++ }}</th>
+                    <td>{{ $item['product_name'] }}</td>
+                    <td>{{ isset($item['discount']) && $item['discount'] !== null ? $item['discount'] . ' %' : '-' }}</td>
+                </tr>
+            @endforeach
+            
             </tbody>
         </table>
     </div>

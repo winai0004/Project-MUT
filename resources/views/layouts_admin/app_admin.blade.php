@@ -193,36 +193,18 @@ a.sidebar-link:hover {
                         <span>Promotion</span>
                     </a>
                 </li>
-                {{-- <li class="sidebar-item">
+                <li class="sidebar-item">
                     <a href="{{ route('advert')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
                         <span>Advert</span>
                     </a>
-                </li> --}}
-                {{-- <li class="sidebar-item">
-                    <a href="{{ route('reportsales')}}" class="sidebar-link">
-                        <i class="lni lni-user"></i>
-                        <span>Report Sales</span>
-                    </a>
-                </li>                 --}}
+                </li>
                 <li class="sidebar-item">
                     <a href="{{ route('membershiplevel')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>
                         <span>Membership Level</span>
                     </a>
                 </li>
-                {{-- <li class="sidebar-item">
-                    <a href="{{ route('sale_products')}}" class="sidebar-link">
-                        <i class="lni lni-user"></i>
-                        <span>Sale Product</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{{ route('order_products')}}" class="sidebar-link">
-                        <i class="lni lni-user"></i>
-                        <span>Order Product</span>
-                    </a>
-                </li> --}}
                 <li class="sidebar-item">
                     <a href="{{ route('order_shopping')}}" class="sidebar-link">
                         <i class="lni lni-user"></i>

@@ -39,23 +39,35 @@ class ProductController extends Controller
     }
 
 
+    // public function view()
+    // {
+
+
+    //     $products = DB::table('products')
+    //         ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
+    //         ->leftJoin('shirt_size_data', 'products.size_id', '=', 'shirt_size_data.size_id')
+    //         ->leftJoin('product_category_data', 'products.category_id', '=', 'product_category_data.category_id')
+    //         ->select('products.*', 'shirt_color.color_name', 'shirt_size_data.size_name', 'product_category_data.category_name')
+    //         ->paginate(8);
+
+    //     return view('frontend/welcomeuser', compact('products'));
+    // }
+
+
     public function view()
     {
-
-
-
         $products = DB::table('products')
-            ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
-            ->leftJoin('shirt_size_data', 'products.size_id', '=', 'shirt_size_data.size_id')
-            ->leftJoin('product_category_data', 'products.category_id', '=', 'product_category_data.category_id')
-            ->select('products.*', 'shirt_color.color_name', 'shirt_size_data.size_name', 'product_category_data.category_name')
-            ->paginate(8);
+        ->leftJoin('shirt_color', 'products.color_id', '=', 'shirt_color.color_id')
+        ->leftJoin('shirt_size_data', 'products.size_id', '=', 'shirt_size_data.size_id')
+        ->leftJoin('product_category_data', 'products.category_id', '=', 'product_category_data.category_id')
+        ->select('products.*', 'shirt_color.color_name', 'shirt_size_data.size_name', 'product_category_data.category_name')
+        ->paginate(8);
+        
 
-        return view('frontend/welcomeuser', compact('products'));
+        $advert = DB::table('advertisement_data')->get(); // ดึงข้อมูลโฆษณา
+
+        return view('frontend/welcomeuser', compact('products','advert')); // ส่งข้อมูลไปที่ view
     }
-
-
-
 
     public function Detailview($id)
     {
