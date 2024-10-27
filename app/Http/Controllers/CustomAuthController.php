@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use League\CommonMark\Extension\SmartPunct\EllipsesParser;
 
 class CustomAuthController extends Controller
 {
@@ -15,7 +14,6 @@ class CustomAuthController extends Controller
     {
         return view('auth.login');
     }
-
 
     public function customLogin(Request $request, $status)
     {
@@ -30,11 +28,9 @@ class CustomAuthController extends Controller
             $user = Auth::user();
 
             if ($status == 1 && $user->status == 1) {
-                return redirect()->route('admin')
-                    ->withSuccess('Signed in');
-            } else if ($status == 2 && $user->status == 2) {
-                return redirect()->intended('/')
-                    ->withSuccess('Signed in');
+                return redirect()->route('admin')->withSuccess('Signed in');
+            } elseif ($status == 2 && $user->status == 2) {
+                return redirect()->intended('/')->withSuccess('Signed in');
             } else {
                 return redirect()->back()->withInput($request->only('email'))->withErrors([
                     'email' => 'User is not active or not found.',
@@ -47,11 +43,11 @@ class CustomAuthController extends Controller
         }
     }
 
-
     public function registration()
     {
         return view('auth.register');
     }
+
     public function customRegistration(Request $request)
     {
         $request->validate([
@@ -59,10 +55,13 @@ class CustomAuthController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
         ]);
+
         $data = $request->all();
-        $check = $this->create($data);
-        return redirect("dashboard")->withSuccess('You have signed-in');
+        $this->create($data);
+
+        return redirect()->route('dashboard')->withSuccess('You have signed in');
     }
+
     public function create(array $data)
     {
         return User::create([
@@ -70,20 +69,22 @@ class CustomAuthController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'status' => 2
-
         ]);
     }
+
     public function dashboard()
     {
         if (Auth::check()) {
             return view('dashboard');
         }
-        return redirect("login")->withSuccess('You are not allowed to access');
+        return redirect()->route('login')->withSuccess('You are not allowed to access');
     }
+
     public function signOut()
     {
         Session::flush();
         Auth::logout();
-        return Redirect('login');
+
+        return redirect()->route('login');
     }
 }
