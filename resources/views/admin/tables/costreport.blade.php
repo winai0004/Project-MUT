@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="container px-5 my-5">
-    <h5 class="text-center">ตารางรายงานต้นทุนสินค้าที่ขาย</h5>
+    <h5 class="text-center">รายงานต้นทุนสินค้าที่ขาย</h5>
 
     <div class="overflow-auto p-3 bg-light" style="max-height: 600px;">
         <!-- ฟอร์มสำหรับเลือกวันที่ในการค้นหา -->
