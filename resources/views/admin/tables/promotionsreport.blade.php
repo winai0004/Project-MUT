@@ -6,8 +6,11 @@
 
     <div class="overflow-auto p-3 bg-light" style="max-height: 600px;">
         <form action="{{ route('promotionsreport') }}" method="GET" class="mb-2">
-            <label for="day">เลือกวันที่ต้องการค้นหา:</label>
-            <input type="date" id="day" name="day" value="{{ $selectedDate ?? '' }}">
+            <label for="start_date">เลือกวันที่เริ่มต้น:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ $startDate ?? '' }}">
+        
+            <label for="end_date">เลือกวันที่สิ้นสุด:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ $endDate ?? '' }}">
             <input type="submit" value="ค้นหา" class="btn btn-primary">
         </form>
 

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container px-5 my-5">
-    <h5 class="text-center">รายงานยอดขายสินค้า</h5>
+    <h5 class="text-center">รายงานยอดขายสินค้า รายปี</h5>
 
     <form action="{{ route('sumreport') }}" method="GET" class="mb-2">
         <label for="start_date">วันที่เริ่มต้น:</label>

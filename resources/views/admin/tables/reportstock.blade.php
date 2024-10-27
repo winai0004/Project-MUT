@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="container px-5 my-5">
-    <h5 class="text-center">ตารางรายงานสินค้าที่สั่งซื้อเข้า Stock</h5>
+    <h5 class="text-center">รายงานสินค้าที่สั่งซื้อเข้า Stock</h5>
 
     <div class="overflow-auto p-3 bg-light" style="max-height: 600px;">
         <!-- ฟอร์มสำหรับเลือกวันที่ในการค้นหา -->
