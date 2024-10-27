@@ -21,6 +21,7 @@
         <table id="example" class="table table-striped border" style="width:100%">
             <thead>
                 <tr>
+                    <th>ลำดับ</th>
                     <th>รหัสสินค้า</th>
                     <th>ชื่อสินค้า</th>
                     <th>ต้นทุนต่อหน่วย</th>
@@ -29,9 +30,11 @@
                 </tr>
             </thead>
             <tbody>
+                @php $counter = 1; @endphp
                 @if($costReport->isNotEmpty())
                     @foreach($costReport as $report)
                         <tr>
+                            <th scope="row">{{  $counter++ }}</th>
                             <td>{{ $report['product_id'] }}</td>
                             <td>{{ $report['product_name'] }}</td>
                             <td>{{ number_format($report['cost_price'], 2) }} บาท</td>

@@ -17,6 +17,7 @@
     <table id="example" class="table table-striped border" style="width:100%">
         <thead>
             <tr>
+                <th>ลำดับ</th>
                 <th>ชื่อสินค้า</th>
                 <th>จำนวนคำสั่งซื้อ</th>
                 <th>ยอดขายรวม</th>
@@ -24,8 +25,10 @@
             </tr>
         </thead>
         <tbody>
+            @php $counter = 1; @endphp
             @foreach($groupedSalesData as $data)
                 <tr>
+                    <th scope="row">{{  $counter++ }}</th>
                     <td>{{ $data['product_name'] }}</td>
                     <td>{{ $data['total_orders'] }}</td>
                     <td>{{ number_format($data['total_sales'], 2) }} บาท</td>
