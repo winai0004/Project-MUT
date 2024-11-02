@@ -183,11 +183,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'cartview'])->name('cartview');
     Route::get('/checkout', [CartController::class, 'checkoutView'])->name('checkout-view');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::delete('/cart/delete/{cartId}',  [CartController::class, 'delete'])->name('cart.delete');
+    Route::delete('/cart/delete',  [CartController::class, 'delete'])->name('cart.delete');
     Route::put('/cart/update', [CartController::class, 'update'])->name('cart.update');
     Route::put('/cart/update/stock/quantity/{id}', [CartController::class, 'updateQuantity'])->name('cart.update_quantity');
     Route::get('/cart/totals', [CartController::class, 'getCartTotals']);
-    Route::post('/cart/checkout-add', [CartController::class, 'checkoutAdd'])->name('checkout-add');
+    Route::put('/cart/checkout-add', [CartController::class, 'updateDetailsCart'])->name('checkout-add');
     
 
 

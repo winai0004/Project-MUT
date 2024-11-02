@@ -10,9 +10,8 @@
     <table id="example" class="table table-striped border" style="width:100%">
     <thead>
         <tr>
-            <th>Order Number</th>
-            <th>Employee </th>
-            <th>Order DateTime</th>
+            <th>Full Name</th>
+            <th>Created At</th>
             <th>Status</th>
             <th>View</th>
             <th>Delete</th>
@@ -21,9 +20,8 @@
         <tbody>
             @foreach($orders as $item)
                 <tr>
-                    <td>{{$item->order_number}}</td>
-                    <td>{{$item->fullname}}</td>
-                    <td>{{$item->created_at}}</td>
+                <td>{{ $item->fullname }}</td>
+                <td>{{ $item->created_at }}</td>
                     
                     <td style="width:50px;">
                         @if($item->status == 0)
@@ -34,9 +32,9 @@
                             <a href="#" class="btn btn-danger btn-sm">Failed</a>
                         @endif
                     </td>                    
-                    <td style="width:50px;"><a href="{{ route('order_view',$item->order_id)}}" class="btn btn-info btn-sm">view</a></td>  
+                    <td style="width:50px;"><a href="{{ route('order_view',$item->user_id )}}" class="btn btn-info btn-sm">view</a></td>  
                     <td style="width:50px;">
-                        <button class="btn btn-danger btn-sm delete-order" data-order-id="{{ $item->order_id }}" data-order-number="{{ $item->order_number }}">delete</button>
+                        <button class="btn btn-danger btn-sm delete-order" data-order-id="{{ $item->user_id  }}" data-order-name="{{ $item->fullname }}">delete</button>
                     </td>
                             
                 </tr>
@@ -56,10 +54,10 @@
             e.preventDefault();
             
             var orderId = $(this).data('order-id');
-            var orderNumber = $(this).data('order-number');
+            var orderName = $(this).data('order-name'); // ดึง fullname
             var row = $(this).closest('tr'); // ค้นหาแถวของปุ่มที่คลิก
 
-            if (confirm('คุณต้องการลบ Order #' + orderNumber + ' หรือไม่?')) {
+            if (confirm('คุณต้องการลบ Order ของคุณ' + orderName + ' หรือไม่?')) {
                 $.ajax({
                     url: '{{ url("order/delete") }}/' + orderId,
                     type: 'DELETE',
