@@ -16,7 +16,7 @@
             <th>First Name</th>
             <th>Last Name</th>
             <th>Username</th>
-            <th>Password</th>
+            {{-- <th>Password</th> --}}
             <th>Phone Number</th>
             <th>Department</th>
             <th>edit</th>
@@ -30,7 +30,7 @@
                     <td>{{$item->first_name}}</td>
                     <td>{{$item->last_name}}</td>
                     <td>{{$item->username}}</td>
-                    <td>{{$item->password}}</td>
+                    {{-- <td>{{$item->password}}</td> --}}
                     <td>{{$item->phone_number}}</td>
                     <td>{{$item->department_name}}</td>
                     <td style="width:50px;"><a href="{{ route('edit_employee' ,$item->employee_id)}}" class="btn btn-warning btn-sm" >edit</a></td>

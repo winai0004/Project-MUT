@@ -4,7 +4,7 @@
 
 <div class="container px-5 my-5 ">
     <div class="container ">
-    <h5 class="text-center">ฟอร์มแก้ไขข้อมูล</h5>
+    <h5 class="text-center">ฟอร์มแก้ไขข้อมูลโฆษณา</h5>
     <div class="row d-flex justify-content-center">
         <div class="col-md-9  ">
             <div class="form">
@@ -21,10 +21,17 @@
                                 <span class="text-danger">{{$message}}</span>
                             </div>
                         @enderror
-                        <div class="mb-3 col-md-12">
+                        {{-- <div class="mb-3 col-md-12">
                             <label>เปลี่ยนรูปภาพโฆษณา<span class="text-danger">*</span></label>
                             <input type="file" name="advertisement_image" class="form-control" value="{{$advert->advertisement_image}}" >
                             @error('advertisement_image')
+                                <span class="text-danger">{{$message}}</span>
+                            @enderror
+                        </div> --}}
+                        <div class="mb-3 col-md-12">
+                            <label>เปลี่ยนรูปภาพ<span class="text-danger">*</span></label>
+                            <input type="file" name="advertisement_img" class="form-control">
+                            @error('advertisement_img')
                                 <span class="text-danger">{{$message}}</span>
                             @enderror
                         </div>
