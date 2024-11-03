@@ -15,7 +15,7 @@ class SummarySaleReportController extends Controller
         $endDate = $request->input('end_date', Carbon::now()->toDateString());
 
         // ดึงข้อมูลคำสั่งซื้อที่อยู่ในช่วงวันที่ที่เลือก
-        $salesData = DB::table('order_shopping')
+        $salesData = DB::table('order_shop_detail')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get()
             ->flatMap(function ($order) {

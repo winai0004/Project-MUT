@@ -21,10 +21,7 @@ class ReportSalesController extends Controller
             ->take(5) 
             ->get();
     
-        return view('admin.tables.report', compact('topSellingItems', 'selectedDate'));
+        // ส่งข้อมูลไปยัง View
+        return view('admin.tables.report', compact('topSellingItems', 'startDate', 'endDate', 'categoryId', 'categories'));
     }
-    
-    
-
-}
-
+}    

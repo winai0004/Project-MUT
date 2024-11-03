@@ -16,7 +16,7 @@ class PromotionsReportController extends Controller
        $endDate = $request->input('end_date', Carbon::now()->toDateString());
     
         // ดึงข้อมูลจาก order_shopping ที่มีการสร้างในวันที่เลือก
-        $soldProducts = DB::table('order_shopping')
+        $soldProducts = DB::table('order_shop_detail')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get()
             ->flatMap(function ($report) {

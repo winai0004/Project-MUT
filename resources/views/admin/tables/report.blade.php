@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="container px-5 my-5 ">
-    <h5 class="text-center">ตารางรายงานสินค้าขายดี</h5>
+    <h5 class="text-center">รายงานสินค้าขายดี</h5>
 
 
     <br>
@@ -49,18 +49,16 @@
             </thead>
             <tbody>
                 @php $counter = 1; @endphp
-                @foreach($topSellingItems as $item) 
-                    <tr>
-                        <th scope="row">{{ $counter++ }}</th>
-                        <td>
-                            <img src="{{ asset('images/' . $item->image) }}"  
-                                 alt="Item Image" 
-                                 style="width:100px; height:auto;">
-                        </td>
-                        <td>{{ $item->name }}</td>  
-                        <td>{{ $item->total_quantity }}</td> 
-                    </tr>
-                @endforeach
+                @foreach($topSellingItems as $item)
+                <tr>
+                    <th scope="row">{{ $counter++ }}</th>
+                    <td>
+                        <img src="{{ asset('images/' . $item->image) }}" alt="Item Image" style="width:100px; height:auto;">
+                    </td>
+                    <td>{{ $item->product_name }}</td>  
+                    <td>{{ $item->total_quantity }}</td> 
+                </tr>
+            @endforeach
             </tbody>
         </table>
     </div>
