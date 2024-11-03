@@ -7,83 +7,85 @@
 
     <div class="overflow-auto p-3 bg-light" style=" max-height: 900px;">
         
-        <a href="{{ route('order_shopping')}}" class="btn btn-info btn-sm">Back</a>
+        <a href="{{ route('order_shopping') }}" class="btn btn-info btn-sm">Back</a>
 
         <div class="card mt-4">
             <div class="card-body">
-              
-                <div class="mt-1">
-                    <span>ชื่อ {{ $orders[0]->fullname }}</span>
-                    <span>วันที่ {{ date('d-m-Y', strtotime($orders[0]->created_at)) }}</span>
-                   
-                </div>
-
-                <div>
-                    <span>ธนาคาร {{ $orders[0]->payment_method }} </span>
-                    <span>ดูสลิป <a href="{{ asset('storage/' . $orders[0]->slip) }}" target="_blank">ดูสลิป</a> </span>
-                </div>
-                
-                <div class="mt-2">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Order Number</th>
-                                <th scope="col">Image</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Color</th>
-                                <th scope="col">Size</th>
-                                <th scope="col">Quantity</th>
-                                <th scope="col">Total Price</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Tel</th>
-                                <th scope="col">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($orders as $index => $order)
-                            <tr>
-                                <th scope="row">{{ $index + 1 }}</th>
-                                <td>{{ $order->order_number }}</td>
-                                <td>
-                                    <img src="{{ asset('images/' . $order->image) }}"
-                                         alt="Item Image" 
-                                         style="width:100px; height: auto;">
-                                </td>
-                                <td>{{ $order->name }}</td>
-                                <td>{{ $order->color }}</td>
-                                <td>{{ $order->size }}</td>
-                                <td>{{ $order->total_quantity }}</td>
-                                <td>{{ number_format($order->total_price, 2) }}</td>
-                                <td>{{ $order->address }}</td>
-                                <td>{{ $order->telephone }}</td>
-                                <td>
-                                    @if($order->status == 0)
-                                        Pending
-                                    @elseif($order->status == 1)
-                                        Success
-                                    @elseif($order->status == 2)
-                                        Failed
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <div>Total Price: {{ number_format($orders->sum('total_price'), 2) }} บาท</div>
-                        <div>Total Quantity: {{ $orders->sum('total_quantity') }} ชิ้น</div>
+                @if($orders[0]->status == 0)
+                    <center><h1>อยู่ระหว่างการสั่งซื้อ</h1></center>
+                @elseif($orders[0]->status == 1)
+                    <div class="mt-1">
+                        <span>ชื่อ {{ $orders[0]->fullname }}</span>
+                        <span>วันที่ {{ date('d-m-Y', strtotime($orders[0]->created_at)) }}</span>
                     </div>
-                    
-                </div>
+
+                    <div>
+                        <span>ธนาคาร {{ $orders[0]->payment_method }} </span>
+                        <span>ดูสลิป <a href="{{ asset('storage/' . $orders[0]->slip) }}" target="_blank">ดูสลิป</a> </span>
+                    </div>
+
+                    <div class="mt-2">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    {{-- <th scope="col">Order Number</th> --}}
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Color</th>
+                                    <th scope="col">Size</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Total Price</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Tel</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($orders as $index => $order)
+                                    <tr>
+                                        <th scope="row">{{ $index + 1 }}</th>
+                                        {{-- <td>{{ $order->order_number }}</td> --}}
+                                        <td>
+                                            <img src="{{ asset('images/' . $order->image) }}"
+                                                 alt="Item Image" 
+                                                 style="width:100px; height: auto;">
+                                        </td>
+                                        <td>{{ $order->name }}</td>
+                                        <td>{{ $order->color }}</td>
+                                        <td>{{ $order->size }}</td>
+                                        <td>{{ $order->total_quantity }}</td>
+                                        <td>{{ number_format($order->total_price, 2) }}</td>
+                                        <td>{{ $order->address }}</td>
+                                        <td>{{ $order->telephone }}</td>
+                                        <td>
+                                            @if($order->status == 0)
+                                                Pending
+                                            @elseif($order->status == 1)
+                                                Success
+                                            @elseif($order->status == 2)
+                                                Failed
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div>Total Price: {{ number_format($orders->sum('total_price'), 2) }} บาท</div>
+                            <div>Total Quantity: {{ $orders->sum('total_quantity') }} ชิ้น</div>
+                        </div>
+                    </div>
+                @else
+                    <center><h1>เกิดข้อผิดพลาด</h1></center>
+
+                @endif
             </div>
         </div>
-        
     </div>
-
 </div>
 
 <script>

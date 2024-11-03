@@ -32,7 +32,6 @@
 
                                 {{-- <input type="hidden" id="cartItems" data-cart-items="{{ json_encode($cartItems) }}"> --}}
 
-                                <input type="hidden" id="orderDetailId" value="{{$orderDetailId}}">
 
                                 @if ($item->user_id !== Auth::user()->id)
                                         <tr>
@@ -49,19 +48,19 @@
                                                 <button type="button" class="btn btn-dark mx-2 btn-increment" 
                                                         data-cart-id="{{ $item->cart_id }}" 
                                                         data-product-id="{{ $item->product_id }}" 
-                                                        data-order-detail-id="{{ $orderDetailId }}">+</button>
+                                                        data-order-detail-id="{{$item->order_detail_id }}">+</button> 
                                             
                                                 <span class="quantity">{{ $item->quantity }}</span>
                                             
                                                 <button type="button" class="btn btn-dark mx-2 btn-decrement" 
                                                         data-cart-id="{{ $item->cart_id }}" 
                                                         data-product-id="{{ $item->product_id }}" 
-                                                        data-order-detail-id="{{ $orderDetailId }}">-</button>
+                                                        data-order-detail-id="{{$item->order_detail_id }}">-</button>
                                             </td>
                                             
                                             <td class="total-price">฿{{ number_format($item->price * $item->quantity, 2) }}</td>
                                             <td>                        
-                                                <button type="button" class="btn btn-danger btn-delete" data-cart-id="{{ $item->cart_id }}" data-order-detail-id="{{ $orderDetailId }}">Delete</button>
+                                                <button type="button" class="btn btn-danger btn-delete" data-cart-id="{{ $item->cart_id }}" data-order-detail-id="{{ $item->order_detail_id }}">Delete</button>
                                             </td>
                                         </tr>
                                     @endif
@@ -166,7 +165,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <button type="button" class="btn btn-dark w-100" id="btn_checkout" data-href="{{ route('checkout-view') }}">Checkout</button>
+                        <button type="button" class="btn btn-dark w-100" id="btn_checkout"   data-href="{{ route('checkout-view') }}">Checkout</button>
                     </div>       
 
             
@@ -307,7 +306,13 @@ $(document).ready(function(){
     $(document).on('click', '.btn-decrement', function() {
         let orderDetailId = $(this).data('order-detail-id');
 
-    let cartId = $(this).data('cart-id');
+        
+        
+        let cartId = $(this).data('cart-id');
+        console.log('orderDetailId' + orderDetailId);
+        console.log('cartId' + cartId);
+
+
     let productId = $(this).data('product-id');
     let $row = $(this).closest('tr');
     let quantitySpan = $row.find('.quantity');
@@ -337,7 +342,6 @@ $(document).ready(function(){
 
     function updateCartItem(cartId, quantity , checkMark , orderDetailId) {
 
-        console.log('orderDetailId' + orderDetailId);
         $.ajax({
             url: '/cart/update',
             type: 'PUT',  // ใช้ PUT สำหรับการอัปเดตข้อมูล

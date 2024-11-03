@@ -12,24 +12,27 @@ class Order_ProductDetailController extends Controller
     {
 
         $orders = DB::table('order_shop_detail')
-            ->select('user_id', 'fullname', 'created_at', 'status')
-            ->groupBy('user_id', 'fullname', 'created_at', 'status') // รวมแถวตาม user_id
-            ->get();
+        ->select('user_id', 'fullname', 'created_at', 'status')
+        ->groupBy('user_id', 'fullname', 'created_at', 'status')
+        ->get();
     
         return view('admin/tables/order_shopping', compact('orders'));
     }
     
-    public function orderview($id)
+    public function orderview($id, $datetime)
     {
-        $orders = DB::table('order_shop_detail')
-            ->where('user_id', $id)
-            ->get();
+        // แปลง datetime ที่ได้รับเป็นรูปแบบที่ฐานข้อมูลเข้าใจ
+        $formattedDate = \Carbon\Carbon::parse($datetime)->format('Y-m-d H:i:s');
     
+        $orders = DB::table('order_shop_detail')
+            ->where('user_id', $id) // กรองตาม user_id
+            ->where('created_at', $formattedDate) // กรองตามวันที่และเวลา
+            ->get();
+        
         // ส่งข้อมูลไปยัง view
         return view('admin/view/order_view', compact('orders'));
     }
     
-
     public function updateStatus(Request $request)
         {
             $order_id = $request->input('order_detail_id ');

@@ -69,10 +69,25 @@ class CartController extends Controller
                     ]);
             } else {
 
+                // เพิ่มข้อมูลในตาราง order_shop_detail และรับ order_detail_id
+                $orderDetailId = DB::table('order_shop_detail')->insertGetId([
+                    'order_number' => 'ORD-' . strtoupper(uniqid()),
+                    'user_id' => $user_id,
+                    'name' => $productItem->product_name,
+                    'image' =>  $productItem->product_img,
+                    'color' => $color,
+                    'size' => $size,
+                    'total_quantity' => $quantity,
+                    'total_price' => $price * $quantity,
+                    'status' => 0,
+                    'created_at' => now(),
+                ]);
 
+                // ใช้ order_detail_id ที่ได้มาเพื่อเพิ่มข้อมูลในตาราง cart_shopping
                 DB::table('cart_shopping')->insert([
                     'user_id' => $user_id,
                     'product_id' => $product_id,
+                    'order_detail_id' => $orderDetailId, // ใช้ order_detail_id ที่ได้
                     'quantity' => $quantity,
                     'name' => $productItem->product_name,
                     'price' =>  $price,
@@ -86,19 +101,8 @@ class CartController extends Controller
                 ]);
 
 
-                DB::table('order_shop_detail')->insert([
-                    'order_number' => 'ORD-' . strtoupper(uniqid()),
-                    'user_id' => $user_id,
-                    'name' => $productItem->product_name,
-                    'image' =>  $productItem->product_img,
-                    'color' => $color,
-                    'size' => $size,
-                    'total_quantity' => $quantity,
-                    'total_price' => $price * $quantity,
-                    'status' => 0,
-                    'created_at' => now(),
-                ]);
 
+               
 
                 DB::table('stock_items')
                     ->where('stock_id', $productItem->stock_stock_id)
@@ -288,16 +292,29 @@ class CartController extends Controller
 
             $filePath = $formFile->store('uploads', 'public');
 
-      
-            DB::table('order_shop_detail')->update([
-                'fullname' => $item['name'],
-                'payment_method' => $item['paymentMethod'],
-                'slip' => $filePath,
-                'address' => $item['address'],
-                'telephone' => $item['telephone'],
-                'status' => 1, // successful
-                'created_at' => now(),
-            ]);
+            $user_id = Auth::user()->id;
+
+            // ดึง order_detail_id จาก cart_shopping ตาม user_id
+            $orderDetailIds = DB::table('cart_shopping')
+            ->where('user_id', $user_id)
+            ->pluck('order_detail_id') // ดึง order_detail_id
+            ->toArray(); // แปลงเป็นอาเรย์
+        
+        if (!empty($orderDetailIds)) {
+            // เตรียมข้อมูลสำหรับการอัพเดท
+            DB::table('order_shop_detail')
+                ->whereIn('order_detail_id', $orderDetailIds) // ใช้ whereIn เพื่อลดการ query
+                ->update([
+                    'fullname' => $item['name'], // ค่าจากข้อมูลที่ส่งมา
+                    'payment_method' => $item['paymentMethod'],
+                    'slip' => $filePath,
+                    'address' => $item['address'],
+                    'telephone' => $item['telephone'],
+                    'status' => 1, // successful
+                    'created_at' => now(),
+                ]);
+        }
+        
 
             DB::table('cart_shopping')->where('user_id', Auth::id())->delete();
 
