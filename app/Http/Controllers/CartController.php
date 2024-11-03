@@ -39,12 +39,8 @@ class CartController extends Controller
                 ->where(compact('user_id', 'product_id', 'color', 'size'))
                 ->first();
 
-            $existingCartDetail = DB::table('order_shop_detail')
-                ->where(compact('user_id', 'color', 'size'))
-                ->first();
 
-
-            if ($existingCartItem &&  $existingCartDetail) {
+            if ($existingCartItem) {
                 DB::table('cart_shopping')
                     ->where('cart_id', $existingCartItem->cart_id)
                     ->update([
@@ -54,13 +50,7 @@ class CartController extends Controller
                     ]);
 
 
-                DB::table('order_shop_detail')
-                    ->where('order_detail_id',  $existingCartDetail->order_detail_id)
-                    ->update([
-                        'total_quantity' => $existingCartItem->quantity + $quantity,
-                        'total_price' => ($existingCartItem->quantity + $quantity) *  $price,
-                        'created_at' => now(),
-                    ]);
+              
 
                 DB::table('stock_items')
                     ->where('stock_id', $productItem->stock_stock_id)
@@ -69,25 +59,12 @@ class CartController extends Controller
                     ]);
             } else {
 
-                // เพิ่มข้อมูลในตาราง order_shop_detail และรับ order_detail_id
-                $orderDetailId = DB::table('order_shop_detail')->insertGetId([
-                    'order_number' => 'ORD-' . strtoupper(uniqid()),
-                    'user_id' => $user_id,
-                    'name' => $productItem->product_name,
-                    'image' =>  $productItem->product_img,
-                    'color' => $color,
-                    'size' => $size,
-                    'total_quantity' => $quantity,
-                    'total_price' => $price * $quantity,
-                    'status' => 0,
-                    'created_at' => now(),
-                ]);
-
+             
                 // ใช้ order_detail_id ที่ได้มาเพื่อเพิ่มข้อมูลในตาราง cart_shopping
                 DB::table('cart_shopping')->insert([
                     'user_id' => $user_id,
                     'product_id' => $product_id,
-                    'order_detail_id' => $orderDetailId, // ใช้ order_detail_id ที่ได้
+                    // 'order_detail_id' => $orderDetailId, // ใช้ order_detail_id ที่ได้
                     'quantity' => $quantity,
                     'name' => $productItem->product_name,
                     'price' =>  $price,
@@ -102,8 +79,7 @@ class CartController extends Controller
 
 
 
-               
-
+        
                 DB::table('stock_items')
                     ->where('stock_id', $productItem->stock_stock_id)
                     ->update([
@@ -125,14 +101,6 @@ class CartController extends Controller
 
 
 
-        $orderDetail = DB::table('order_shop_detail')
-            ->where('user_id', $user_id)
-            ->first();
-
-        $orderDetailId = $orderDetail->order_detail_id ?? null;
-
-
-
 
         $cartTotals = DB::table('cart_shopping')
             ->selectRaw('SUM(quantity) as total_quantity')
@@ -146,7 +114,6 @@ class CartController extends Controller
             'cartItems' => $cartItems,
             'totalQuantity' => $cartTotals->total_quantity,
             'totalPrice' => $cartTotals->total_price,
-            'orderDetailId' =>  $orderDetailId
         ]);
     }
 
@@ -215,7 +182,7 @@ class CartController extends Controller
     public function delete(Request $request)
     {
         $cartId = $request->input('cartId');
-        $orderDetailId = $request->input('orderDetailId');
+        // $orderDetailId = $request->input('orderDetailId');
 
     
         $cartItem = DB::table('cart_shopping')->where('cart_id', $cartId)->first();
@@ -228,11 +195,6 @@ class CartController extends Controller
             return response()->json(['error' => 'You do not have permission to delete this item.'], 403);
         }
     
-        $orderDetail = DB::table('order_shop_detail')->where('order_detail_id', $orderDetailId)->first();
-    
-        if (!$orderDetail) {
-            return response()->json(['error' => 'Order detail not found.'], 404);
-        }
     
         if (!$cartItem->product_id) {
             return response()->json(['error' => 'Product not found.'], 404);
@@ -240,7 +202,6 @@ class CartController extends Controller
     
         DB::table('cart_shopping')->where('cart_id', $cartId)->delete();
 
-        DB::table('order_shop_detail')->where('order_detail_id', $orderDetailId)->delete();
     
         // คืนจำนวนสินค้าใน stock_items
         $total_quantity = $cartItem->quantity;
@@ -294,28 +255,44 @@ class CartController extends Controller
 
             $user_id = Auth::user()->id;
 
-            // ดึง order_detail_id จาก cart_shopping ตาม user_id
-            $orderDetailIds = DB::table('cart_shopping')
-            ->where('user_id', $user_id)
-            ->pluck('order_detail_id') // ดึง order_detail_id
-            ->toArray(); // แปลงเป็นอาเรย์
-        
-        if (!empty($orderDetailIds)) {
-            // เตรียมข้อมูลสำหรับการอัพเดท
-            DB::table('order_shop_detail')
-                ->whereIn('order_detail_id', $orderDetailIds) // ใช้ whereIn เพื่อลดการ query
-                ->update([
-                    'fullname' => $item['name'], // ค่าจากข้อมูลที่ส่งมา
-                    'payment_method' => $item['paymentMethod'],
-                    'slip' => $filePath,
-                    'address' => $item['address'],
-                    'telephone' => $item['telephone'],
-                    'status' => 1, // successful
-                    'created_at' => now(),
-                ]);
-        }
-        
+                    // Insert into order_shop_detail
+            $orderShopDetailId = DB::table('order_shop_detail')->insertGetId([
+                'user_id' => $user_id,
+                'fullname' => $item['name'], // ค่าจากข้อมูลที่ส่งมา
+                'payment_method' => $item['paymentMethod'],
+                'slip' => $filePath,
+                'address' => $item['address'],
+                'telephone' => $item['telephone'],
+                'created_at' => now(),
+            ]);
 
+            $orderDetailId = DB::table('order')->insertGetId([
+                'order_detail_id' => $orderShopDetailId, 
+                'order_number' => strtoupper(uniqid('ORD_')),
+                'user_id' => $user_id,
+                'status' => 1, // successful
+                'created_at' => now(),
+            ]);
+
+
+            $cartItems = $item['cartItems'];
+
+
+            foreach ($cartItems as  $item) {
+                DB::table('item_orders')->insert([
+                    'order_id' => $orderDetailId, // รหัสคำสั่งซื้อที่ได้รับจาก order
+                    'user_id' => $user_id, // รหัสผู้ใช้
+                    'name' => $item['name'], // ชื่อสินค้า
+                    'image' => $item['image'], // รูปภาพสินค้า
+                    'color' => $item['color'], // สี
+                    'size' => $item['size'], // ขนาด
+                    'total_quantity' => $item['quantity'], // จำนวนรวม
+                    'total_price' => $item['total_price'], // ราคารวม
+                    'created_at' => now(), // เวลาที่สร้าง
+                ]);
+            }
+
+        
             DB::table('cart_shopping')->where('user_id', Auth::id())->delete();
 
 

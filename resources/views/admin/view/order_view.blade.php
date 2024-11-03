@@ -11,17 +11,21 @@
 
         <div class="card mt-4">
             <div class="card-body">
-                @if($orders[0]->status == 0)
+                @if($status == 0)
                     <center><h1>อยู่ระหว่างการสั่งซื้อ</h1></center>
-                @elseif($orders[0]->status == 1)
+                @elseif($status == 1)
                     <div class="mt-1">
-                        <span>ชื่อ {{ $orders[0]->fullname }}</span>
-                        <span>วันที่ {{ date('d-m-Y', strtotime($orders[0]->created_at)) }}</span>
+                        <span>ชื่อ {{ $orderDetails->fullname }}</span>
+                        <span>วันที่ {{ date('d-m-Y', strtotime($orderDetails->created_at)) }}</span>
                     </div>
 
                     <div>
-                        <span>ธนาคาร {{ $orders[0]->payment_method }} </span>
-                        <span>ดูสลิป <a href="{{ asset('storage/' . $orders[0]->slip) }}" target="_blank">ดูสลิป</a> </span>
+                        <span>ธนาคาร {{ $orderDetails->payment_method }} </span>
+                        <span>ดูสลิป <a href="{{ asset('storage/' . $orderDetails->slip) }}" target="_blank">ดูสลิป</a> </span>
+                    </div>
+
+                    <div>
+                        <span>ที่อยู่ {{ $orderDetails->address }} </span>
                     </div>
 
                     <div class="mt-2">
@@ -36,9 +40,7 @@
                                     <th scope="col">Size</th>
                                     <th scope="col">Quantity</th>
                                     <th scope="col">Total Price</th>
-                                    <th scope="col">Address</th>
-                                    <th scope="col">Tel</th>
-                                    <th scope="col">Status</th>
+                               
                                 </tr>
                             </thead>
                             <tbody>
@@ -56,17 +58,7 @@
                                         <td>{{ $order->size }}</td>
                                         <td>{{ $order->total_quantity }}</td>
                                         <td>{{ number_format($order->total_price, 2) }}</td>
-                                        <td>{{ $order->address }}</td>
-                                        <td>{{ $order->telephone }}</td>
-                                        <td>
-                                            @if($order->status == 0)
-                                                Pending
-                                            @elseif($order->status == 1)
-                                                Success
-                                            @elseif($order->status == 2)
-                                                Failed
-                                            @endif
-                                        </td>
+                                       
                                     </tr>
                                 @endforeach
                             </tbody>

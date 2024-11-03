@@ -9,6 +9,7 @@
         <table id="example" class="table table-striped border" style="width:100%">
             <thead>
                 <tr>
+                    <th>Order Number</th>
                     <th>Full Name</th>
                     <th>Created At</th>
                     <th>Status</th>
@@ -20,6 +21,7 @@
                 @foreach($orders as $item)
                   
                     <tr>
+                        <td>{{ $item->order_number }}</td>
                         <td>{{ $item->fullname }}</td>
                         <td>{{ $item->created_at }}</td>
                         <td style="width:50px;">
@@ -32,10 +34,10 @@
                             @endif
                         </td>
                         <td style="width:50px;">
-                            <a href="{{ route('order_view', ['id' => $item->user_id, 'datetime' => $item->created_at]) }}" class="btn btn-info btn-sm">view</a>
+                            <a href="{{ route('order_view', [$item->order_id, $item->order_detail_id , $item->status]) }}" class="btn btn-info btn-sm">view</a>
                         </td>
                           <td style="width:50px;">
-                            <button class="btn btn-danger btn-sm delete-order" data-order-id="{{ $item->user_id }}" data-order-name="{{ $item->fullname }}">delete</button>
+                            <button class="btn btn-danger btn-sm delete-order" data-order-id="{{ $item->order_id }}" data-order-name="{{ $item->fullname }}">delete</button>
                         </td>
                     </tr>
                 @endforeach
@@ -80,5 +82,6 @@
         });
     });
 </script>
+
 
 @endsection

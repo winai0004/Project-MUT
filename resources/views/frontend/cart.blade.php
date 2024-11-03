@@ -48,19 +48,19 @@
                                                 <button type="button" class="btn btn-dark mx-2 btn-increment" 
                                                         data-cart-id="{{ $item->cart_id }}" 
                                                         data-product-id="{{ $item->product_id }}" 
-                                                        data-order-detail-id="{{$item->order_detail_id }}">+</button> 
+                                                        >+</button> 
                                             
                                                 <span class="quantity">{{ $item->quantity }}</span>
                                             
                                                 <button type="button" class="btn btn-dark mx-2 btn-decrement" 
                                                         data-cart-id="{{ $item->cart_id }}" 
                                                         data-product-id="{{ $item->product_id }}" 
-                                                        data-order-detail-id="{{$item->order_detail_id }}">-</button>
+                                                        >-</button>
                                             </td>
                                             
                                             <td class="total-price">฿{{ number_format($item->price * $item->quantity, 2) }}</td>
                                             <td>                        
-                                                <button type="button" class="btn btn-danger btn-delete" data-cart-id="{{ $item->cart_id }}" data-order-detail-id="{{ $item->order_detail_id }}">Delete</button>
+                                                <button type="button" class="btn btn-danger btn-delete" data-cart-id="{{ $item->cart_id }}">Delete</button>
                                             </td>
                                         </tr>
                                     @endif
@@ -165,7 +165,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <button type="button" class="btn btn-dark w-100" id="btn_checkout"   data-href="{{ route('checkout-view') }}">Checkout</button>
+                        <button type="button" class="btn btn-dark w-100" id="btn_checkout" data-cart-items="{{$cartItems}}"  data-href="{{ route('checkout-view') }}">Checkout</button>
                     </div>       
 
             
@@ -194,6 +194,10 @@ $(document).ready(function(){
     });
 
     $("#btn_checkout").click(function() {
+            //เก็บเป็นอาเรย์ 
+            let cartItems = $(this).data('cart-items');
+
+
             var href = $(this).data('href');
 
             let name = $('#fullname').val();
@@ -211,6 +215,7 @@ $(document).ready(function(){
                 telephone: telephone,
                 address: address,
                 paymentMethod: paymentMethod,
+                cartItems: cartItems
             };
 
             let formData = new FormData();

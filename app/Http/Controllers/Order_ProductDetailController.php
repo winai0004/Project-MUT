@@ -10,28 +10,34 @@ class Order_ProductDetailController extends Controller
 {
     public function index()
     {
-
-        $orders = DB::table('order_shop_detail')
-        ->select('user_id', 'fullname', 'created_at', 'status')
-        ->groupBy('user_id', 'fullname', 'created_at', 'status')
-        ->get();
+        $orders = DB::table('order')
+            ->join('users', 'order.user_id', '=', 'users.id') 
+            ->select('order.*', 'users.name as fullname') 
+            ->get();
     
-        return view('admin/tables/order_shopping', compact('orders'));
+        return view('admin.tables.order_shopping', compact('orders'));
     }
     
-    public function orderview($id, $datetime)
-    {
-        // แปลง datetime ที่ได้รับเป็นรูปแบบที่ฐานข้อมูลเข้าใจ
-        $formattedDate = \Carbon\Carbon::parse($datetime)->format('Y-m-d H:i:s');
     
-        $orders = DB::table('order_shop_detail')
-            ->where('user_id', $id) // กรองตาม user_id
-            ->where('created_at', $formattedDate) // กรองตามวันที่และเวลา
+    public function orderview($orderId, $orderDetailId ,$status)
+    {
+        // ดึงข้อมูลรายการสินค้าตาม order_id
+        $orders = DB::table('item_orders')
+            ->where('order_id', $orderId) // กรองตาม order_id
             ->get();
         
+        // หากต้องการดึงรายละเอียดของ order_detail_id สามารถทำได้ที่นี่
+        // เช่น
+        $orderDetails = DB::table('order_shop_detail')
+            ->where('order_detail_id', $orderDetailId) // หรือชื่อคอลัมน์ที่ถูกต้อง
+            ->first();
+
+        $status = $status;
+    
         // ส่งข้อมูลไปยัง view
-        return view('admin/view/order_view', compact('orders'));
+        return view('admin.view.order_view', compact('orders', 'orderDetails','status'));
     }
+    
     
     public function updateStatus(Request $request)
         {
@@ -45,10 +51,15 @@ class Order_ProductDetailController extends Controller
             return response()->json(['success' => true]);
         }
     
-        public function delete($id){
-            DB::table('order_shopping')->where('order_detail_id',$id)->delete();
+        public function delete($id)
+        {
+            DB::table('order')->where('order_id', $id)->delete();
+            
+            DB::table('item_orders')->where('order_id', $id)->delete();
+            
             return response()->json(['success' => true]);
         }
+        
     
     
 }

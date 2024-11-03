@@ -136,7 +136,7 @@ Route::post('admin/order_products/update/{id}', [Order_itemController::class, 'u
 
 //Order Product
 Route::get('admin/tables/order_shopping', [Order_ProductDetailController::class, 'index'])->name('order_shopping');
-Route::get('admin/view/order_view/{id}/{datetime}', [Order_ProductDetailController::class, 'orderview'])->name('order_view');
+Route::get('admin/view/order_view/{order_id}/{order_detail_id}/{status}', [Order_ProductDetailController::class, 'orderview'])->name('order_view');
 Route::post('/order/update-status', [Order_ProductDetailController::class, 'updateStatus'])->name('order.updateStatus');
 Route::delete('/order/delete/{id}', [Order_ProductDetailController::class, 'delete'])->name('order.delete');
 Route::get('admin/form/order_products_detailForm', [Order_ProductDetailController::class, 'create'])->name('form_order_products_detail');
