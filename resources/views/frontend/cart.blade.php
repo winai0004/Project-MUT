@@ -30,7 +30,9 @@
                             @else
                                 @foreach($cartItems as $index => $item)
 
-                                <input type="hidden" id="cartItems" data-cart-items="{{ json_encode($cartItems) }}">
+                                {{-- <input type="hidden" id="cartItems" data-cart-items="{{ json_encode($cartItems) }}"> --}}
+
+
                                 @if ($item->user_id !== Auth::user()->id)
                                         <tr>
                                             <td colspan="7">Items belong to another user.</td>
@@ -43,13 +45,22 @@
                                             <td>{{ $item->size }}</td>
                                             <td class="price" data-price="{{ $item->price }}">฿{{ number_format($item->price, 2) }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-dark mx-2 btn-increment" data-cart-id="{{ $item->cart_id }}" data-product-id="{{ $item->product_id }}">+</button>
+                                                <button type="button" class="btn btn-dark mx-2 btn-increment" 
+                                                        data-cart-id="{{ $item->cart_id }}" 
+                                                        data-product-id="{{ $item->product_id }}" 
+                                                        data-order-detail-id="{{$item->order_detail_id }}">+</button> 
+                                            
                                                 <span class="quantity">{{ $item->quantity }}</span>
-                                                <button type="button" class="btn btn-dark mx-2 btn-decrement"  data-cart-id="{{ $item->cart_id }}" data-product-id="{{ $item->product_id }}">-</button>
+                                            
+                                                <button type="button" class="btn btn-dark mx-2 btn-decrement" 
+                                                        data-cart-id="{{ $item->cart_id }}" 
+                                                        data-product-id="{{ $item->product_id }}" 
+                                                        data-order-detail-id="{{$item->order_detail_id }}">-</button>
                                             </td>
+                                            
                                             <td class="total-price">฿{{ number_format($item->price * $item->quantity, 2) }}</td>
                                             <td>                        
-                                                <button type="button" class="btn btn-danger btn-delete" data-cart-id="{{ $item->cart_id }}">Delete</button>
+                                                <button type="button" class="btn btn-danger btn-delete" data-cart-id="{{ $item->cart_id }}" data-order-detail-id="{{ $item->order_detail_id }}">Delete</button>
                                             </td>
                                         </tr>
                                     @endif
@@ -154,7 +165,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <button type="button" class="btn btn-dark w-100" id="btn_checkout" data-href="{{ route('checkout-view') }}">Checkout</button>
+                        <button type="button" class="btn btn-dark w-100" id="btn_checkout"   data-href="{{ route('checkout-view') }}">Checkout</button>
                     </div>       
 
             
@@ -168,10 +179,8 @@
 <script>
 
 $(document).ready(function(){
-
+    
     var paymentMethod = "ธนาคารกรุงเทพ,8888-888"; 
-    var cartItems = $('#cartItems').data('cart-items'); 
-    console.log('Cart Items:', cartItems);
 
 
     $('input[name="exampleRadios"]').change(function() {
@@ -202,15 +211,13 @@ $(document).ready(function(){
                 telephone: telephone,
                 address: address,
                 paymentMethod: paymentMethod,
-                cartItems: cartItems, 
-                totalPrice: calculateTotalPrice(), 
-                totalQuantity: calculateTotalQuantity() 
             };
 
             let formData = new FormData();
             formData.append('item', JSON.stringify(item));
             formData.append('formFile', formFile);
             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            formData.append('_method', 'PUT');  // บอก Laravel ว่านี่คือ PUT request
 
             $.ajax({
                 url: '/cart/checkout-add',
@@ -234,43 +241,44 @@ $(document).ready(function(){
 
 
         
-    function calculateTotalPrice() {
-        return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
-    }   
+    // function calculateTotalPrice() {
+    //     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
+    // }   
 
-    function calculateTotalQuantity() {
-        return cartItems.reduce((total, item) => total + item.quantity, 0);
-    }
+    // function calculateTotalQuantity() {
+    //     return cartItems.reduce((total, item) => total + item.quantity, 0);
+    // }
 
 
 
     $('.btn-delete').on('click', function() {
-        var cartId = $(this).data('cart-id'); // ดึง cart_id จาก data attribute
-        var row = $(this).closest('tr'); // ดึง row ที่เกี่ยวข้อง
+        var cartId = $(this).data('cart-id');
+    var orderDetailId = $(this).data('order-detail-id');
+    var row = $(this).closest('tr'); 
 
-        console.log(row);
-
-
-        if (confirm('Are you sure you want to delete this item?')) {
-            $.ajax({
-                url: '/cart/delete/' + cartId, // ส่งคำขอไปที่เส้นทางนี้
-                type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}' 
-                },
-                success: function(response) {
-                    row.remove(); // ลบ row ออกจากตาราง
-                    alert(response.success); 
-                    fetchCartTotals();
-                },
-                error: function(xhr) {
-                    alert('An error occurred while trying to delete the item.');
-                }
-            });
-        }
-    });
+    if (confirm('Are you sure you want to delete this item?')) {
+        $.ajax({
+            url: '/cart/delete', 
+            type: 'DELETE',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),  
+                cartId: cartId,
+                orderDetailId: orderDetailId  
+            },
+            success: function(response) {
+                row.remove(); // ลบ row ออกจากตาราง
+                alert(response.success); 
+                fetchCartTotals();
+            },
+            error: function(xhr) {
+                alert('An error occurred while trying to delete the item.');
+            }
+        });
+    }
+});
 
     $(document).on('click', '.btn-increment', function() {
+        let orderDetailId = $(this).data('order-detail-id');
     let cartId = $(this).data('cart-id');
     let productId = $(this).data('product-id');
     let $row = $(this).closest('tr');
@@ -284,7 +292,7 @@ $(document).ready(function(){
             // quantity--;
         } else {
             quantity++;
-            updateCartItem(cartId, quantity, true);
+            updateCartItem(cartId, quantity, true ,orderDetailId);
             fetchCartTotals();
         }
         quantitySpan.text(quantity);
@@ -296,7 +304,15 @@ $(document).ready(function(){
 
 
     $(document).on('click', '.btn-decrement', function() {
-    let cartId = $(this).data('cart-id');
+        let orderDetailId = $(this).data('order-detail-id');
+
+        
+        
+        let cartId = $(this).data('cart-id');
+        console.log('orderDetailId' + orderDetailId);
+        console.log('cartId' + cartId);
+
+
     let productId = $(this).data('product-id');
     let $row = $(this).closest('tr');
     let quantitySpan = $row.find('.quantity');
@@ -317,14 +333,15 @@ $(document).ready(function(){
 
         $row.find('.total-price').text('฿' + formattedPrice); 
 
-        updateCartItem(cartId, quantity, false);
+        updateCartItem(cartId, quantity, false,orderDetailId);
         fetchCartTotals();
     }
 });
 
 
 
-    function updateCartItem(cartId, quantity , checkMark) {
+    function updateCartItem(cartId, quantity , checkMark , orderDetailId) {
+
         $.ajax({
             url: '/cart/update',
             type: 'PUT',  // ใช้ PUT สำหรับการอัปเดตข้อมูล
@@ -332,7 +349,8 @@ $(document).ready(function(){
                 _token: '{{ csrf_token() }}',
                 cart_id: cartId,
                 quantity: quantity,
-                checkMark :checkMark
+                checkMark :checkMark,
+                orderDetailId : orderDetailId
             },
             success: function(response) {
                 console.log('Cart item updated successfully.');

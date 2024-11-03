@@ -33,20 +33,7 @@
                     <td>{{$item->color_name}}</td>
                     <td>{{$item->size_name}}</td>
                     <td>{{$item->category_name}}</td>
-                    {{-- <td>
-                        @if(property_exists($item, 'color_name'))
-                            {{$item->color_name}}
-                        @else
-                            N/A
-                        @endif
-                    </td>
-                    <td>
-                        @if(property_exists($item, 'size_name'))
-                            {{$item->size_name}}
-                        @else
-                            N/A
-                        @endif
-                    </td> --}}
+                  
                     <td style="width:50px;"><a href="{{ route('edit_products' ,$item->product_id)}}" class="btn btn-warning btn-sm" >edit</a></td>
                     <td style="width:50px;"><a href="{{ route('delete_products' ,$item->product_id)}}" class="btn btn-danger btn-sm" onclick="return confirm(`คุณต้องการลบ {{$item->product_name}} หรือไม่?`)">delete</a></td>          
                 </tr>

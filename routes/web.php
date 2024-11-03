@@ -136,7 +136,7 @@ Route::post('admin/order_products/update/{id}', [Order_itemController::class, 'u
 
 //Order Product
 Route::get('admin/tables/order_shopping', [Order_ProductDetailController::class, 'index'])->name('order_shopping');
-Route::get('admin/view/order_view/{id}', [Order_ProductDetailController::class, 'orderview'])->name('order_view');
+Route::get('admin/view/order_view/{id}/{datetime}', [Order_ProductDetailController::class, 'orderview'])->name('order_view');
 Route::post('/order/update-status', [Order_ProductDetailController::class, 'updateStatus'])->name('order.updateStatus');
 Route::delete('/order/delete/{id}', [Order_ProductDetailController::class, 'delete'])->name('order.delete');
 Route::get('admin/form/order_products_detailForm', [Order_ProductDetailController::class, 'create'])->name('form_order_products_detail');
@@ -196,11 +196,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cart', [CartController::class, 'cartview'])->name('cartview');
     Route::get('/checkout', [CartController::class, 'checkoutView'])->name('checkout-view');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::delete('/cart/delete/{cartId}',  [CartController::class, 'delete'])->name('cart.delete');
+    Route::delete('/cart/delete',  [CartController::class, 'delete'])->name('cart.delete');
     Route::put('/cart/update', [CartController::class, 'update'])->name('cart.update');
     Route::put('/cart/update/stock/quantity/{id}', [CartController::class, 'updateQuantity'])->name('cart.update_quantity');
     Route::get('/cart/totals', [CartController::class, 'getCartTotals']);
-    Route::post('/cart/checkout-add', [CartController::class, 'checkoutAdd'])->name('checkout-add');
+    Route::put('/cart/checkout-add', [CartController::class, 'updateDetailsCart'])->name('checkout-add');
     
 
 

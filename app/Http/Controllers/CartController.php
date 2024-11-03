@@ -20,120 +20,160 @@ class CartController extends Controller
         $discount_promotion = $request->input('discount_promotion');
 
 
-    
+
         $productItem = DB::table('products')
-        ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
-        ->select('products.*', 'stock_items.product_id as stock_name' , 'stock_items.quantity as stock_quantity' , 'stock_items.stock_id as stock_stock_id') 
-        ->where('products.product_id', $product_id) 
-        ->first();
-        
+            ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
+            ->select('products.*', 'stock_items.quantity as stock_quantity', 'stock_items.stock_id as stock_stock_id')
+            ->where('products.product_id', $product_id)
+            ->first();
+
         if (!$productItem) {
             return response()->json(['error' => 'Product not found'], 404);
         }
 
         if ($productItem->stock_quantity == 0) {
             return redirect()->back()->with('error', 'Out of stock');
-        }else{
-            
-        $existingCartItem = DB::table('cart_shopping')
-            ->where(compact('user_id', 'product_id', 'color', 'size'))
-            ->first();
-        
+        } else {
 
-        if ($existingCartItem) {
-            DB::table('cart_shopping')
-            ->where('cart_id', $existingCartItem->cart_id)
-            ->update([
-                'quantity' => $existingCartItem->quantity + $quantity,
-                'total_price' => ($existingCartItem->quantity + $quantity) *  $price,
-                'updated_at' => now(),
-            ]);
+            $existingCartItem = DB::table('cart_shopping')
+                ->where(compact('user_id', 'product_id', 'color', 'size'))
+                ->first();
 
-            DB::table('stock_items')
-                ->where('stock_id', $productItem->stock_stock_id)  
-                ->update([
-                'quantity' => DB::raw('quantity - 1'),
-            ]); 
+            $existingCartDetail = DB::table('order_shop_detail')
+                ->where(compact('user_id', 'color', 'size'))
+                ->first();
 
+
+            if ($existingCartItem &&  $existingCartDetail) {
+                DB::table('cart_shopping')
+                    ->where('cart_id', $existingCartItem->cart_id)
+                    ->update([
+                        'quantity' => $existingCartItem->quantity + $quantity,
+                        'total_price' => ($existingCartItem->quantity + $quantity) *  $price,
+                        'updated_at' => now(),
+                    ]);
+
+
+                DB::table('order_shop_detail')
+                    ->where('order_detail_id',  $existingCartDetail->order_detail_id)
+                    ->update([
+                        'total_quantity' => $existingCartItem->quantity + $quantity,
+                        'total_price' => ($existingCartItem->quantity + $quantity) *  $price,
+                        'created_at' => now(),
+                    ]);
+
+                DB::table('stock_items')
+                    ->where('stock_id', $productItem->stock_stock_id)
+                    ->update([
+                        'quantity' => DB::raw('quantity - 1'),
+                    ]);
             } else {
+
+                // เพิ่มข้อมูลในตาราง order_shop_detail และรับ order_detail_id
+                $orderDetailId = DB::table('order_shop_detail')->insertGetId([
+                    'order_number' => 'ORD-' . strtoupper(uniqid()),
+                    'user_id' => $user_id,
+                    'name' => $productItem->product_name,
+                    'image' =>  $productItem->product_img,
+                    'color' => $color,
+                    'size' => $size,
+                    'total_quantity' => $quantity,
+                    'total_price' => $price * $quantity,
+                    'status' => 0,
+                    'created_at' => now(),
+                ]);
+
+                // ใช้ order_detail_id ที่ได้มาเพื่อเพิ่มข้อมูลในตาราง cart_shopping
                 DB::table('cart_shopping')->insert([
                     'user_id' => $user_id,
                     'product_id' => $product_id,
+                    'order_detail_id' => $orderDetailId, // ใช้ order_detail_id ที่ได้
                     'quantity' => $quantity,
-                    'name' => $productItem->stock_name,
+                    'name' => $productItem->product_name,
                     'price' =>  $price,
                     'color' => $color,
                     'size' => $size,
                     'total_price' =>  $price * $quantity,
                     'image' => $productItem->product_img,
-                    'discount_promotion' => $request->discount_promotion != null ? $request->discount_promotion : null ,
+                    'discount_promotion' => $request->discount_promotion != null ? $request->discount_promotion : null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
 
-                DB::table('stock_items')
-                ->where('stock_id', $productItem->stock_stock_id)  
-                ->update([
-                    'quantity' => DB::raw('quantity - 1'),
-                ]); 
 
+
+               
+
+                DB::table('stock_items')
+                    ->where('stock_id', $productItem->stock_stock_id)
+                    ->update([
+                        'quantity' => DB::raw('quantity - 1'),
+                    ]);
             }
         }
-        
+
         return redirect()->route('cartview')->with('success', 'Product added to cart!');
     }
-    
+
     public function cartview()
     {
         $user_id = Auth::user()->id;
-    
+
         $cartItems = DB::table('cart_shopping')
             ->where('user_id', $user_id)
-            ->get(); 
+            ->get();
 
-    
+
+
+        $orderDetail = DB::table('order_shop_detail')
+            ->where('user_id', $user_id)
+            ->first();
+
+        $orderDetailId = $orderDetail->order_detail_id ?? null;
+
+
+
+
         $cartTotals = DB::table('cart_shopping')
-        ->selectRaw('SUM(quantity) as total_quantity')
-        ->selectRaw('SUM(total_price) as total_price')
-        ->where('user_id', Auth::user()->id)
-        ->first();
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->selectRaw('SUM(total_price) as total_price')
+            ->where('user_id', Auth::user()->id)
+            ->first();
 
 
-        // $cartTotals = DB::table('cart_shopping')
-        // ->selectRaw('SUM(quantity) as total_quantity, SUM(total_price) as total_price')
-        // ->where('user_id', Auth::user()->id)
-        // ->first();
-    
         // ส่งตัวแปร $cartItems ไปยังหน้า UI (frontend.cart)
-        return view('frontend.cart', ['cartItems' => $cartItems ,'totalQuantity' => $cartTotals->total_quantity,
-            'totalPrice' => $cartTotals->total_price]);
+        return view('frontend.cart', [
+            'cartItems' => $cartItems,
+            'totalQuantity' => $cartTotals->total_quantity,
+            'totalPrice' => $cartTotals->total_price,
+            'orderDetailId' =>  $orderDetailId
+        ]);
     }
 
     public function update(Request $request)
     {
         $cartId = $request->input('cart_id');
+        $orderDetailId = $request->input('orderDetailId');
+
         $quantity = $request->input('quantity');
-        $checkMark = filter_var($request->input('checkMark'), FILTER_VALIDATE_BOOLEAN); 
-        
-        
+        $checkMark = filter_var($request->input('checkMark'), FILTER_VALIDATE_BOOLEAN);
+
+
         // ดึงข้อมูลจาก cart_shopping โดยใช้ cart_id
         $cartItem = DB::table('cart_shopping')->where('cart_id', $cartId)->first();
-    
+
+
+        $orderDetail = DB::table('order_shop_detail')->where('order_detail_id', $orderDetailId)->first();
+
         if (!$cartItem) {
             return response()->json(['error' => 'Cart item not found.'], 404);
         }
-    
-        // ดึงข้อมูลสินค้าจากตาราง products และ stock_items
-        // $productItem = DB::table('products')
-        //     ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
-        //     ->select('products.*', 'stock_items.product_id as product_id') 
-        //     ->where('products.product_id', $cartItem->product_id) 
-        //     ->first();
-    
+
+
         if (!$cartItem->product_id) {
             return response()->json(['error' => 'Product not found.'], 404);
         }
-    
+
         // อัปเดตจำนวนสินค้าในตะกร้าและราคาทั้งหมด
         DB::table('cart_shopping')
             ->where('product_id', $cartItem->product_id)
@@ -142,70 +182,94 @@ class CartController extends Controller
                 'total_price' => DB::raw('price * ' . $quantity), // อัปเดตราคาตามจำนวน
                 'updated_at' => now(),
             ]);
-    
-            if ($checkMark) {
-                DB::table('stock_items')
-                    ->where('product_id', $cartItem->product_id)
-                    ->update([
-                        'quantity' => DB::raw('quantity - 1'),
-                    ]);
-            } else {
-                DB::table('stock_items')
-                    ->where('product_id', $cartItem->product_id)
-                    ->update([
-                        'quantity' => DB::raw('quantity + 1'),
-                    ]);
-            }
-    
+
+
+        // อัปเดตจำนวนสินค้าในรายละเอียดสินค้า
+        DB::table('order_shop_detail')
+            ->where('order_detail_id', $orderDetail->order_detail_id)
+            ->update([
+                'total_quantity' => $quantity,
+                'total_price' => DB::raw('total_price * ' . $quantity), // อัปเดตราคาตามจำนวน
+                'created_at' => now(),
+            ]);
+
+
+        if ($checkMark) {
+            DB::table('stock_items')
+                ->where('product_id', $cartItem->product_id)
+                ->update([
+                    'quantity' => DB::raw('quantity - 1'),
+                ]);
+        } else {
+            DB::table('stock_items')
+                ->where('product_id', $cartItem->product_id)
+                ->update([
+                    'quantity' => DB::raw('quantity + 1'),
+                ]);
+        }
+
         return response()->json(['success' => 'Cart item updated successfully.']);
     }
-    
 
-    public function delete($cartId)
+
+    public function delete(Request $request)
     {
+        $cartId = $request->input('cartId');
+        $orderDetailId = $request->input('orderDetailId');
+
+    
         $cartItem = DB::table('cart_shopping')->where('cart_id', $cartId)->first();
     
         if (!$cartItem) {
             return response()->json(['error' => 'Cart item not found.'], 404);
         }
     
-        if ($cartItem->user_id != Auth::user()->id) {
+        if ($cartItem->user_id != Auth::id()) {
             return response()->json(['error' => 'You do not have permission to delete this item.'], 403);
         }
     
-  
+        $orderDetail = DB::table('order_shop_detail')->where('order_detail_id', $orderDetailId)->first();
+    
+        if (!$orderDetail) {
+            return response()->json(['error' => 'Order detail not found.'], 404);
+        }
+    
         if (!$cartItem->product_id) {
             return response()->json(['error' => 'Product not found.'], 404);
         }
     
         DB::table('cart_shopping')->where('cart_id', $cartId)->delete();
 
+        DB::table('order_shop_detail')->where('order_detail_id', $orderDetailId)->delete();
+    
+        // คืนจำนวนสินค้าใน stock_items
         $total_quantity = $cartItem->quantity;
-
+    
         DB::table('stock_items')
             ->where('product_id', $cartItem->product_id)
             ->update([
-                'quantity' => DB::raw('quantity + ' . $total_quantity), 
+                'quantity' => DB::raw('quantity + ' . $total_quantity),
             ]);
-        
+    
         return response()->json(['success' => 'Item deleted successfully.']);
     }
     
 
-    public function getCartTotals() {
+    public function getCartTotals()
+    {
         $cartTotals = DB::table('cart_shopping')
             ->selectRaw('SUM(quantity) as total_quantity')
             ->selectRaw('SUM(total_price) as total_price')
             ->where('user_id', Auth::user()->id)
             ->first();
-    
+
         return response()->json([
             'totalQuantity' => $cartTotals->total_quantity,
             'totalPrice' => $cartTotals->total_price
         ]);
     }
-    
-    
+
+
     public function checkoutView()
     {
         return view('frontend.checkout');
@@ -234,6 +298,20 @@ class CartController extends Controller
                 if (!$formFile) {
                     throw new \Exception('File not uploaded.');
                 }
+    public function updateDetailsCart(Request $request)
+    {
+
+        try {
+            $item = json_decode($request->input('item'), true);
+            if (!$item) {
+                throw new \Exception('Invalid item data.');
+            }
+
+            
+            $formFile = $request->file('formFile');
+            if (!$formFile) {
+                throw new \Exception('File not uploaded.');
+            }
 
                 // การจัดเก็บไฟล์
                 $filePath = $formFile->store('uploads', 'public');
@@ -246,77 +324,68 @@ class CartController extends Controller
                     'fullname' => $item['name'],
                     'telephone' => $item['telephone'],
                     'address' => $item['address'],
+            $filePath = $formFile->store('uploads', 'public');
+
+            $user_id = Auth::user()->id;
+
+            // ดึง order_detail_id จาก cart_shopping ตาม user_id
+            $orderDetailIds = DB::table('cart_shopping')
+            ->where('user_id', $user_id)
+            ->pluck('order_detail_id') // ดึง order_detail_id
+            ->toArray(); // แปลงเป็นอาเรย์
+        
+        if (!empty($orderDetailIds)) {
+            // เตรียมข้อมูลสำหรับการอัพเดท
+            DB::table('order_shop_detail')
+                ->whereIn('order_detail_id', $orderDetailIds) // ใช้ whereIn เพื่อลดการ query
+                ->update([
+                    'fullname' => $item['name'], // ค่าจากข้อมูลที่ส่งมา
                     'payment_method' => $item['paymentMethod'],
                     'slip' => $filePath,
-                    'total_price' => (float)$item['totalPrice'], 
-                    'total_quantity' => (int)$item['totalQuantity'], 
-                    'status' => 0,
+                    'address' => $item['address'],
+                    'telephone' => $item['telephone'],
+                    'status' => 1, // successful
                     'created_at' => now(),
                 ]);
-
-                // แปลง JSON ของ cartItems เป็นอาร์เรย์
-                $cartItems = $item['cartItems'];
-                // print_r(json_encode($item['cartItems']));
-                // ตรวจสอบว่าข้อมูลถูกแปลงเป็นอาร์เรย์เรียบร้อย
-                // if (is_array($cartItems)) {
-                //     DB::table('order_shop_detail')->insert([
-                //         'order_shop_detail_id' => $newOrderShopDetailId, // ใช้ newOrderShopDetailId เป็นค่าในคอลัม order_shop_detail_id
-                //         'cart_id' => $cartItems['cart_id'],
-                //         'user_id' => $cartItems['user_id'],
-                //         'product_id' => $cartItems['product_id'],
-                //         'quantity' => $cartItems['quantity'],
-                //         'name' => $cartItems['name'],
-                //         'price' => $cartItems['price'],
-                //         'color' => $cartItems['color'],
-                //         'size' => $cartItems['size'],
-                //         'total_price' => $cartItems['total_price'],
-                //         'image' => $cartItems['image'],
-                //         'discount_promotion' => $cartItems['discount_promotion'],
-                //         'created_at' => $cartItems['created_at'],
-                //         'updated_at' => $cartItems['updated_at'],
-                //     ]);
-                // } else {
-                //     // แจ้งเตือนกรณี JSON ไม่ถูกต้อง
-                //     throw new \Exception('Invalid JSON format in cartItems.');
-                // }
-
-                // ลบข้อมูลในตะกร้า
-                DB::table('cart_shopping')->where('user_id', Auth::id())->delete();
-
-                return response()->json(['success' => true]);
-            } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 500);
-            }
-        }   
-    
-        public function updateQuantity($id) {
-            $stock = DB::table('products')
-                ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
-                ->select('stock_items.quantity') 
-                ->where('products.product_id', $id) 
-                ->first();
+        }
         
-            if ($stock) {
-                if ($stock->quantity == 0) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'สินค้าหมดสต็อกแล้ว.',
-                    ]);
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'สินค้ายังมีสต็อกอยู่.',
-                    ]);
-                }
+
+            DB::table('cart_shopping')->where('user_id', Auth::id())->delete();
+
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+   
+    public function updateQuantity($id)
+    {
+        $stock = DB::table('products')
+            ->leftJoin('stock_items', 'products.product_id', '=', 'stock_items.product_id')
+            ->select('stock_items.quantity')
+            ->where('products.product_id', $id)
+            ->first();
+
+        if ($stock) {
+            if ($stock->quantity == 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'สินค้าหมดสต็อกแล้ว.',
+                ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'ไม่พบข้อมูลสินค้านี้ในระบบ.',
-                ], 404);
+                    'message' => 'สินค้ายังมีสต็อกอยู่.',
+                ]);
             }
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'ไม่พบข้อมูลสินค้านี้ในระบบ.',
+            ], 404);
         }
-        
-        
-        
+    }
 }
-

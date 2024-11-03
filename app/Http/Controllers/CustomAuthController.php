@@ -21,27 +21,30 @@ class CustomAuthController extends Controller
             'email' => 'required',
             'password' => 'required',
         ]);
-
+    
         $credentials = $request->only('email', 'password');
-
+    
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-
+    
             if ($status == 1 && $user->status == 1) {
                 return redirect()->route('admin')->withSuccess('Signed in');
             } elseif ($status == 2 && $user->status == 2) {
                 return redirect()->intended('/')->withSuccess('Signed in');
             } else {
+                Auth::logout(); // เพิ่มการออกจากระบบเมื่อสถานะไม่ตรงกัน
                 return redirect()->back()->withInput($request->only('email'))->withErrors([
                     'email' => 'User is not active or not found.',
                 ]);
             }
         } else {
+            Auth::logout(); // เพิ่มการออกจากระบบเมื่อข้อมูลล็อกอินผิด
             return redirect()->back()->withInput($request->only('email'))->withErrors([
                 'email' => 'Email or password is incorrect.',
             ]);
         }
     }
+    
 
     public function registration()
     {
