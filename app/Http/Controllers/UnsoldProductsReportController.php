@@ -19,7 +19,7 @@ class UnsoldProductsReportController extends Controller
         $categories = DB::table('product_category_data')->select('category_id', 'category_name')->get();
 
         // ดึงข้อมูลสินค้าที่ขายในช่วงวันที่ที่เลือก
-        $soldProducts = DB::table('order_shopping')
+        $soldProducts = DB::table('order_shop_detail')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get()
             ->flatMap(function ($report) {

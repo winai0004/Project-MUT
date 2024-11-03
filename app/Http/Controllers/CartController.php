@@ -275,29 +275,6 @@ class CartController extends Controller
         return view('frontend.checkout');
     }
 
-    public function checkoutAdd(Request $request)
-        {
-            try {
-                //updaate code 10/31/2024
-                $newOrderShopDetailId = 1;
-                $orderShopDetailId = DB::table('order_shop_detail')
-                ->max('order_shop_detail_id');
-
-                if (is_null($orderShopDetailId)) {
-                    $newOrderShopDetailId = 1;
-                } else {
-                    $newOrderShopDetailId = $orderShopDetailId + 1;
-                }
-
-                $item = json_decode($request->input('item'), true);
-                if (!$item) {
-                    throw new \Exception('Invalid item data.');
-                }
-               
-                $formFile = $request->file('formFile');
-                if (!$formFile) {
-                    throw new \Exception('File not uploaded.');
-                }
     public function updateDetailsCart(Request $request)
     {
 
@@ -313,17 +290,6 @@ class CartController extends Controller
                 throw new \Exception('File not uploaded.');
             }
 
-                // การจัดเก็บไฟล์
-                $filePath = $formFile->store('uploads', 'public');
-                // การจัดเก็บข้อมูลในฐานข้อมูล
-                DB::table('order_shopping')->insert([
-                    'user_id' => Auth::id(),
-                    'order_number' => 'ORD-' . strtoupper(uniqid()),
-                    // 'order_items' => $newOrderShopDetailId,
-                    'order_items' => json_encode($item['cartItems']),
-                    'fullname' => $item['name'],
-                    'telephone' => $item['telephone'],
-                    'address' => $item['address'],
             $filePath = $formFile->store('uploads', 'public');
 
             $user_id = Auth::user()->id;

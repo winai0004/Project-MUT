@@ -34,7 +34,7 @@
                 @if($costReport->isNotEmpty())
                     @foreach($costReport as $report)
                         <tr>
-                            <th scope="row">{{  $counter++ }}</th>
+                            <th scope="row">{{ $counter++ }}</th>
                             <td>{{ $report['product_id'] }}</td>
                             <td>{{ $report['product_name'] }}</td>
                             <td>{{ number_format($report['cost_price'], 2) }} บาท</td>
@@ -44,7 +44,7 @@
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="5" class="text-center">ไม่มีข้อมูลในการแสดง</td> <!-- จำนวนคอลัมน์ต้องตรงกับที่แสดง -->
+                        <td colspan="6" class="text-center">ไม่มีข้อมูลในการแสดง</td> <!-- จำนวนคอลัมน์ต้องตรงกับที่แสดง -->
                     </tr>
                 @endif
             </tbody>
