@@ -98,6 +98,11 @@ class CartController extends Controller
         ->where('user_id', Auth::user()->id)
         ->first();
 
+
+        // $cartTotals = DB::table('cart_shopping')
+        // ->selectRaw('SUM(quantity) as total_quantity, SUM(total_price) as total_price')
+        // ->where('user_id', Auth::user()->id)
+        // ->first();
     
         // ส่งตัวแปร $cartItems ไปยังหน้า UI (frontend.cart)
         return view('frontend.cart', ['cartItems' => $cartItems ,'totalQuantity' => $cartTotals->total_quantity,
@@ -209,11 +214,22 @@ class CartController extends Controller
     public function checkoutAdd(Request $request)
         {
             try {
+                //updaate code 10/31/2024
+                $newOrderShopDetailId = 1;
+                $orderShopDetailId = DB::table('order_shop_detail')
+                ->max('order_shop_detail_id');
+
+                if (is_null($orderShopDetailId)) {
+                    $newOrderShopDetailId = 1;
+                } else {
+                    $newOrderShopDetailId = $orderShopDetailId + 1;
+                }
+
                 $item = json_decode($request->input('item'), true);
                 if (!$item) {
                     throw new \Exception('Invalid item data.');
                 }
-
+               
                 $formFile = $request->file('formFile');
                 if (!$formFile) {
                     throw new \Exception('File not uploaded.');
@@ -221,11 +237,11 @@ class CartController extends Controller
 
                 // การจัดเก็บไฟล์
                 $filePath = $formFile->store('uploads', 'public');
-
                 // การจัดเก็บข้อมูลในฐานข้อมูล
                 DB::table('order_shopping')->insert([
                     'user_id' => Auth::id(),
                     'order_number' => 'ORD-' . strtoupper(uniqid()),
+                    // 'order_items' => $newOrderShopDetailId,
                     'order_items' => json_encode($item['cartItems']),
                     'fullname' => $item['name'],
                     'telephone' => $item['telephone'],
@@ -237,6 +253,32 @@ class CartController extends Controller
                     'status' => 0,
                     'created_at' => now(),
                 ]);
+
+                // แปลง JSON ของ cartItems เป็นอาร์เรย์
+                $cartItems = $item['cartItems'];
+                // print_r(json_encode($item['cartItems']));
+                // ตรวจสอบว่าข้อมูลถูกแปลงเป็นอาร์เรย์เรียบร้อย
+                // if (is_array($cartItems)) {
+                //     DB::table('order_shop_detail')->insert([
+                //         'order_shop_detail_id' => $newOrderShopDetailId, // ใช้ newOrderShopDetailId เป็นค่าในคอลัม order_shop_detail_id
+                //         'cart_id' => $cartItems['cart_id'],
+                //         'user_id' => $cartItems['user_id'],
+                //         'product_id' => $cartItems['product_id'],
+                //         'quantity' => $cartItems['quantity'],
+                //         'name' => $cartItems['name'],
+                //         'price' => $cartItems['price'],
+                //         'color' => $cartItems['color'],
+                //         'size' => $cartItems['size'],
+                //         'total_price' => $cartItems['total_price'],
+                //         'image' => $cartItems['image'],
+                //         'discount_promotion' => $cartItems['discount_promotion'],
+                //         'created_at' => $cartItems['created_at'],
+                //         'updated_at' => $cartItems['updated_at'],
+                //     ]);
+                // } else {
+                //     // แจ้งเตือนกรณี JSON ไม่ถูกต้อง
+                //     throw new \Exception('Invalid JSON format in cartItems.');
+                // }
 
                 // ลบข้อมูลในตะกร้า
                 DB::table('cart_shopping')->where('user_id', Auth::id())->delete();
