@@ -1,71 +1,94 @@
 <?php
 
-    namespace App\Http\Controllers;
+namespace App\Http\Controllers;
 
-    use App\Http\Controllers\Controller;
-    use Illuminate\Http\Request;
-    use Illuminate\Support\Facades\DB;
-    use Carbon\Carbon;
-    
-    class ReportCostController extends Controller
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+class ReportCostController extends Controller
+{
+    public function index(Request $request)
     {
-        public function index(Request $request)
-        {
-            // รับค่าวันที่เริ่มต้นและวันที่สิ้นสุดจากแบบฟอร์ม
-            $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
-            $endDate = $request->input('end_date', Carbon::now()->toDateString());
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->toDateString());
     
-            // สร้าง query สำหรับดึงข้อมูลการขายจาก order_shop_detail
-            $salesData = DB::table('order_shop_detail')
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->get();
+        // ดึงข้อมูลการขาย
+        $salesData = DB::table('item_orders')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
     
-            // ตรวจสอบว่ามีข้อมูลหรือไม่
-            if ($salesData->isEmpty()) {
-                return view('admin.tables.costreport', [
-                    'costReport' => collect(),
-                    'startDate' => $startDate,
-                    'endDate' => $endDate,
-                    'message' => 'ไม่มีข้อมูลการขายในช่วงเวลานี้'
-                ]);
-            }
-    
-            // แปลงข้อมูล order_shop_detail
-            $reports = $salesData->map(function ($report) {
-                return [
-                    'product_id' => $report->name, // ใช้ชื่อที่เป็นรหัสสินค้า
-                    'total_quantity' => $report->total_quantity,
-                ];
-            });
-    
-            // Group by product_id and sum the total_quantity
-            $groupedItems = $reports->groupBy('product_id')
-                ->map(function ($group) {
-                    return [
-                        'total_quantity' => $group->sum('total_quantity'),
-                    ];
-                });
-    
-            // ดึงข้อมูลต้นทุนจากตาราง products
-            $costReport = $groupedItems->map(function ($item, $productId) {
-                // แก้ไขการค้นหาให้ตรงตาม product_id ที่ถูกต้อง
-                $product = DB::table('products')->where('product_name', $productId)->first(); // แก้ไขตรงนี้ให้ใช้ product_name
-    
-                return [
-                    'product_id' => $productId,
-                    'product_name' => $product->product_name ?? 'ไม่พบชื่อสินค้า',
-                    'cost_price' => $product->cost_price ?? 0,
-                    'total_cost' => ($product->cost_price ?? 0) * $item['total_quantity'],
-                    'total_quantity' => $item['total_quantity'],
-                ];
-            });
-    
+        // ตรวจสอบข้อมูลการขาย
+        if ($salesData->isEmpty()) {
             return view('admin.tables.costreport', [
-                'costReport' => $costReport,
+                'costReport' => collect(),
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-                'message' => null
+                'message' => 'ไม่มีข้อมูลการขายในช่วงเวลานี้'
             ]);
         }
-    }
     
+        // ดึงข้อมูล product_id ที่มีอยู่ใน salesData
+        $productIds = $salesData->pluck('product_id')->unique();
+    
+        // ดึงข้อมูลจาก products
+        $products = DB::table('products')
+            ->whereIn('product_id', $productIds)
+            ->get()
+            ->keyBy('product_id');
+    
+        // สร้างรายงานต้นทุนสินค้า
+        $reports = $salesData->groupBy('product_id')->map(function ($group, $productId) {
+            return [
+                'total_quantity' => $group->sum('total_quantity'),
+            ];
+        });
+    
+        // สร้าง cost report
+        $costReport = $reports->map(function ($item, $productId) use ($products) {
+            // ตรวจสอบว่ามี product_id อยู่ใน products หรือไม่
+            if ($products->has($productId)) {
+                $product = $products->get($productId);
+                return [
+                    'product_id' => $productId,
+                    'product_name' => $product->product_name,
+                    'cost_price' => $product->cost_price,
+                    'total_cost' => $product->cost_price * $item['total_quantity'],
+                    'total_quantity' => $item['total_quantity'],
+                ];
+            } else {
+                return [
+                    'product_id' => $productId,
+                    'product_name' => 'ไม่พบชื่อสินค้า',
+                    'cost_price' => 0,
+                    'total_cost' => 0, // สมมติว่าไม่มีต้นทุนรวมเมื่อไม่มีสินค้า
+                    'total_quantity' => $item['total_quantity'],
+                ];
+            }
+        });
+    
+        // ดึงข้อมูลที่ไม่มี product_id
+        $noProductIdReports = $salesData->filter(function ($sale) {
+            return is_null($sale->product_id) || $sale->product_id == 0;
+        })->groupBy('item_id')->map(function ($group) {
+            return [
+                'product_id' => 'ไม่มีสินค้า',
+                'product_name' => 'ไม่พบชื่อสินค้า',
+                'cost_price' => 0,
+                'total_cost' => $group->sum('total_price'), // สมมติว่า total_price เป็นราคาต้นทุนรวม
+                'total_quantity' => $group->sum('total_quantity'),
+            ];
+        });
+    
+        // รวม cost report ทั้งสองกรณี
+        $finalCostReport = $costReport->values()->concat($noProductIdReports->values());
+    
+        return view('admin.tables.costreport', [
+            'costReport' => $finalCostReport,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'message' => null
+        ]);
+    }
+}
