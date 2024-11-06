@@ -130,8 +130,6 @@ class CartController extends Controller
         $cartItem = DB::table('cart_shopping')->where('cart_id', $cartId)->first();
 
 
-        $orderDetail = DB::table('order_shop_detail')->where('order_detail_id', $orderDetailId)->first();
-
         if (!$cartItem) {
             return response()->json(['error' => 'Cart item not found.'], 404);
         }
@@ -151,16 +149,7 @@ class CartController extends Controller
             ]);
 
 
-        // อัปเดตจำนวนสินค้าในรายละเอียดสินค้า
-        DB::table('order_shop_detail')
-            ->where('order_detail_id', $orderDetail->order_detail_id)
-            ->update([
-                'total_quantity' => $quantity,
-                'total_price' => DB::raw('total_price * ' . $quantity), // อัปเดตราคาตามจำนวน
-                'created_at' => now(),
-            ]);
-
-
+    
         if ($checkMark) {
             DB::table('stock_items')
                 ->where('product_id', $cartItem->product_id)
@@ -255,7 +244,7 @@ class CartController extends Controller
 
             $user_id = Auth::user()->id;
 
-
+            // dd( $item );
                     // Insert into order_shop_detail
             $orderShopDetailId = DB::table('order_shop_detail')->insertGetId([
                 'user_id' => $user_id,
@@ -275,20 +264,23 @@ class CartController extends Controller
                 'created_at' => now(),
             ]);
 
+            $cartShoppingItems = DB::table('cart_shopping')->where('user_id', Auth::id())->get()->toArray();
 
-            $cartItems = $item['cartItems'];
+            $insertData = [];
 
-
-            foreach ($cartItems as  $item) {
-                DB::table('item_orders')->insert([
-                    'order_id' => $orderDetailId, // รหัสคำสั่งซื้อที่ได้รับจาก order
-                    'user_id' => $user_id, // รหัสผู้ใช้
-                    'product_id' => $item['product_id'],
-                    'total_quantity' => $item['quantity'], // จำนวนรวม
-                    'total_price' => $item['total_price'], // ราคารวม
+            foreach ($cartShoppingItems as $cartShoppingItem) {
+                $insertData[] = [
+                    'order_id' => $orderDetailId,
+                    'user_id' => $user_id, 
+                    'product_id' => $cartShoppingItem->product_id, 
+                    'total_quantity' => $cartShoppingItem->quantity, 
+                    'total_price' => $cartShoppingItem->total_price, 
                     'created_at' => now(), // เวลาที่สร้าง
-                ]);
+                ];
             }
+
+
+            DB::table('item_orders')->insert($insertData);
 
         
             DB::table('cart_shopping')->where('user_id', Auth::id())->delete();

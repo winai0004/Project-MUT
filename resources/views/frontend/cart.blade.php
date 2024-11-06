@@ -50,7 +50,7 @@
                                                         data-product-id="{{ $item->product_id }}" 
                                                         >+</button> 
                                             
-                                                <span class="quantity">{{ $item->quantity }}</span>
+                                                <span class="quantity" id="quantity">{{ $item->quantity }}</span>
                                             
                                                 <button type="button" class="btn btn-dark mx-2 btn-decrement" 
                                                         data-cart-id="{{ $item->cart_id }}" 
@@ -195,7 +195,17 @@ $(document).ready(function(){
 
     $("#btn_checkout").click(function() {
             //เก็บเป็นอาเรย์ 
-            let cartItems = $(this).data('cart-items');
+            let cartItems = $(this).data('cart-items'); 
+
+            let quantity = []; 
+
+            for (let index = 0; index < cartItems.length; index++) {
+                const element = cartItems[index].quantity; 
+                quantity.push(element); 
+            }
+
+            console.log(quantity); // แสดงผลอาเรย์ quantity
+
 
 
             var href = $(this).data('href');
@@ -215,7 +225,8 @@ $(document).ready(function(){
                 telephone: telephone,
                 address: address,
                 paymentMethod: paymentMethod,
-                cartItems: cartItems
+                cartItems: cartItems,
+                quantity:quantity
             };
 
             let formData = new FormData();
