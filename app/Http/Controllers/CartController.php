@@ -255,6 +255,7 @@ class CartController extends Controller
 
             $user_id = Auth::user()->id;
 
+
                     // Insert into order_shop_detail
             $orderShopDetailId = DB::table('order_shop_detail')->insertGetId([
                 'user_id' => $user_id,
@@ -282,10 +283,7 @@ class CartController extends Controller
                 DB::table('item_orders')->insert([
                     'order_id' => $orderDetailId, // รหัสคำสั่งซื้อที่ได้รับจาก order
                     'user_id' => $user_id, // รหัสผู้ใช้
-                    'name' => $item['name'], // ชื่อสินค้า
-                    'image' => $item['image'], // รูปภาพสินค้า
-                    'color' => $item['color'], // สี
-                    'size' => $item['size'], // ขนาด
+                    'product_id' => $item['product_id'],
                     'total_quantity' => $item['quantity'], // จำนวนรวม
                     'total_price' => $item['total_price'], // ราคารวม
                     'created_at' => now(), // เวลาที่สร้าง

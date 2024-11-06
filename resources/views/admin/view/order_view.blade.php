@@ -49,13 +49,13 @@
                                         <th scope="row">{{ $index + 1 }}</th>
                                         {{-- <td>{{ $order->order_number }}</td> --}}
                                         <td>
-                                            <img src="{{ asset('images/' . $order->image) }}"
+                                            <img src="{{ asset('images/' . $order->product_img) }}"
                                                  alt="Item Image" 
                                                  style="width:100px; height: auto;">
                                         </td>
-                                        <td>{{ $order->name }}</td>
-                                        <td>{{ $order->color }}</td>
-                                        <td>{{ $order->size }}</td>
+                                        <td>{{ $order->product_name }}</td>
+                                        <td>{{ $order->color_name }}</td>
+                                        <td>{{ $order->size_name }}</td>
                                         <td>{{ $order->total_quantity }}</td>
                                         <td>{{ number_format($order->total_price, 2) }}</td>
                                        

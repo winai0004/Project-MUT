@@ -18,13 +18,15 @@
                     <label for="end_date">เลือกวันที่สิ้นสุด:</label>
                     <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $selectedEndDate ?? '' }}">
                 </div>
-                <div class="col-md-3 me-2">
+               <div class="col-md-3 me-2">
                     <label for="type">เลือกประเภท:</label>
                     <select id="type" name="type" class="form-control">
                         <option value="" disabled selected>เลือกประเภท</option>
-                        <option value="type1" {{ (isset($selectedType) && $selectedType == 'type1') ? 'selected' : '' }}>ประเภท 1</option>
-                        <option value="type2" {{ (isset($selectedType) && $selectedType == 'type2') ? 'selected' : '' }}>ประเภท 2</option>
-                        <!-- เพิ่มตัวเลือกประเภทที่ต้องการ -->
+                        @foreach($categories as $category)
+                            <option value="{{ $category->category_id }}" {{ (isset($selectedCategoryId) && $selectedCategoryId == $category->category_id) ? 'selected' : '' }}>
+                                {{ $category->category_name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-12 mt-4">
