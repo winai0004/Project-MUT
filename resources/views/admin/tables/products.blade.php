@@ -7,7 +7,7 @@
 
 <div class="overflow-auto p-3 bg-light" style=" max-height: 600px;">
     <div class="mb-2 d-flex justify-content-end">
-        <a href="{{route('form_products')}}" class="btn btn-primary btn-sm ">เพิ่มข้อมูล</a>
+        <a href="{{route('form_products')}}" class="btn btn-primary btn-sm " id="add-product-btn">เพิ่มข้อมูล</a>
     </div>
     <table id="example" class="table table-striped border" style="width:100%">
     <thead>
@@ -25,7 +25,7 @@
         </tr>
     </thead>
         <tbody>
-            @foreach($products as $item)
+            {{-- @foreach($products as $item)
                 <tr>
                     <td>{{$item->product_id}}</td>
                     <td>{{$item->product_name}}</td>
@@ -36,12 +36,39 @@
                     <td>{{$item->selling_price}}</td>
                     <td>{{$item->color_name}}</td>
                     <td>{{$item->size_name}}</td>
-                    <td>{{$item->category_name}}</td>
+                    <td>{{$item->category_name}}</td> --}}
                    
-                    <td style="width:50px;"><a href="{{ route('edit_products' ,$item->product_id)}}" class="btn btn-warning btn-sm" >edit</a></td>
-                    <td style="width:50px;"><a href="{{ route('delete_products' ,$item->product_id)}}" class="btn btn-danger btn-sm" onclick="return confirm(`คุณต้องการลบ {{$item->product_name}} หรือไม่?`)">delete</a></td>          
+                    {{-- <td style="width:50px;"><a href="{{ route('edit_products' ,$item->product_id)}}" class="btn btn-warning btn-sm" >edit</a></td>
+                    <td style="width:50px;"><a href="{{ route('delete_products' ,$item->product_id)}}" class="btn btn-danger btn-sm" onclick="return confirm(`คุณต้องการลบ {{$item->product_name}} หรือไม่?`)">delete</a></td>           --}}
+                    {{-- <td style="width:50px;">
+                        <a href="{{ route('edit_products' ,$item->product_id)}}" class="btn btn-warning btn-sm btn-edit" id="edit-btn-{{ $item->product_id }}">edit</a>
+                    </td>
+                    <td style="width:50px;">
+                        <a href="{{ route('delete_products' ,$item->product_id)}}" class="btn btn-danger btn-sm btn-delete" id="delete-btn-{{ $item->product_id }}" onclick="return confirm('คุณต้องการลบ {{$item->product_name}} หรือไม่?')">delete</a>
+                    </td>
                 </tr>
-            @endforeach
+            @endforeach --}}
+                    @foreach($products as $item)
+            <tr class="product-row" id="product-row-{{ $item->product_id }}">
+                <td>{{$item->product_id}}</td>
+                <td>{{$item->product_name}}</td>
+                <td>
+                    <img src="{{ asset('images/' . $item->product_img) }}" alt="Product Image" class=" object-fit-cover rounded-circle" width="80px" height="80px">
+                </td>
+                <td>{{$item->cost_price}}</td>
+                <td>{{$item->selling_price}}</td>
+                <td>{{$item->color_name}}</td>
+                <td>{{$item->size_name}}</td>
+                <td>{{$item->category_name}}</td>
+
+                <td style="width:50px;">
+                    <a href="{{ route('edit_products' ,$item->product_id)}}" class="btn btn-warning btn-sm btn-edit">edit</a>
+                </td>
+                <td style="width:50px;">
+                    <a href="{{ route('delete_products' ,$item->product_id)}}" class="btn btn-danger btn-sm btn-delete" onclick="return confirm('คุณต้องการลบ {{$item->product_name}} หรือไม่?')">delete</a>
+                </td>
+            </tr>
+        @endforeach
         </tbody>
     </table>
  </div>
@@ -53,6 +80,19 @@
     $(function(){
         $('#example').DataTable();
     });   
+
+    var department = sessionStorage.getItem('department');
+
+    // ถ้า department == 1 ซ่อนปุ่ม edit และ delete
+    if (department == 1) {
+        // เลือกทุกแถวที่มี class 'product-row'
+        document.querySelectorAll('.product-row').forEach(function(row) {
+            // ซ่อนปุ่ม edit และ delete ในแถวนี้
+            row.querySelector('.btn-edit').style.display = 'none';
+            row.querySelector('.btn-delete').style.display = 'none';
+        });
+        document.getElementById('add-product-btn').style.display = 'none';
+    }
 </script>
 
 

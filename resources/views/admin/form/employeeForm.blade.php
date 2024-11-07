@@ -36,6 +36,13 @@
                                 @enderror
                             </div>
                             <div class="mb-3 col-md-6">
+                                <label>Email พนักงาน<span class="text-danger">*</span></label>
+                                <input type="email" name="email" class="form-control" required>
+                                @error('email')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>                            
+                            <div class="mb-3 col-md-6">
                                 <label>รหัสผ่าน<span class="text-danger">*</span></label>
                                 <input type="password" name="password" class="form-control">
                                 @error('password')

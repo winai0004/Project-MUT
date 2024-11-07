@@ -10,7 +10,7 @@
             <thead>
                 <tr>
                     <th>Order Number</th>
-                    <th>Full Name</th>
+                    <th>Customer User</th>
                     <th>Created At</th>
                     <th>Status</th>
                     <th>View</th>

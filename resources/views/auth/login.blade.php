@@ -1,51 +1,3 @@
-{{-- @extends('layouts_frontend.app')
-
-@section('title','หน้าแรกของเว็บไซต์เช่าชุด')
-@section('content')
-
-
-<main class="login-form">
-    <div class="cotainer">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="card">
-                    <h3 class="card-header text-center">Login</h3>
-                    <div class="card-body">
-                        <form method="POST" action="{{ route('login.custom') }}">
-                            @csrf
-                            <div class="form-group mb-3">
-                                <input type="text" placeholder="Email" id="email" class="form-control" name="email"
-                                    required autofocus>
-                                @if ($errors->has('email'))
-                                <span class="text-danger">{{ $errors->first('email') }}</span>
-                                @endif
-                            </div>
-                            <div class="form-group mb-3">
-                                <input type="password" placeholder="Password" id="password" class="form-control"
-                                    name="password" required>
-                                @if ($errors->has('password'))
-                                <span class="text-danger">{{ $errors->first('password') }}</span>
-                                @endif
-                            </div>
-                            <div class="form-group mb-3">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="remember"> Remember Me
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="d-grid mx-auto">
-                                <button type="submit" class="btn btn-dark btn-block">Signin</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</main>
-@endsection --}}
-
 @extends('layouts_frontend.app')
 @section('content')
 
@@ -89,9 +41,9 @@
                             <form class="card-body cardbody-color p-lg-5" method="POST" action="{{ route('login.custom',1) }}">
                                 @csrf
                                 <div class="text-center">
-                                    <img src="https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295397__340.png" class="img-fluid profile-image-pic img-thumbnail rounded-circle my-3"
-                                        width="200px" alt="profile">
-                                </div> 
+                                    <img src="{{ asset('storage/adminshop.png') }}" class="img-fluid profile-image-pic img-thumbnail rounded-circle my-3"
+                                         width="200px" alt="profile">
+                                </div>
                                 <div class="form-group mb-3">
                                     <input type="text" placeholder="Email" id="email" class="form-control" name="email" required autofocus>
                                     @if ($errors->has('email'))
@@ -108,9 +60,9 @@
                                 <div class="d-grid mx-auto">
                                     <button type="submit" class="btn btn-dark btn-block">Signin</button>
                                 </div>
-                                <div id="emailHelp" class="form-text text-center mb-5  mt-3 text-dark">Not
+                                {{-- <div id="emailHelp" class="form-text text-center mb-5  mt-3 text-dark">Not
                                     Registered? <a  href="{{ route('register') }}" class="text-dark fw-bold"> Create an Account</a>
-                                </div>
+                                </div> --}}
                             </form>
                         </div>  
 
@@ -148,4 +100,11 @@
         </div>
     </div>
 </main>
+<script>
+    // เช็คว่ามีค่าจาก session หรือไม่
+    @if(session('clearSessionStorage'))
+        // เคลียร์ sessionStorage หลังจาก logout
+        sessionStorage.clear(); 
+    @endif
+</script>
 @endsection

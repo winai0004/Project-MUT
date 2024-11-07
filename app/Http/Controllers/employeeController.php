@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,7 @@ class employeeController extends Controller
             'first_name' => 'required',
             'last_name' => 'required', // เพิ่มการตรวจสอบให้ตรงกับชื่อฟิลด์ในฐานข้อมูล
             'username' => 'required',
+            'email' => 'required|email|unique:users',
             'password' => 'required',
             'phone_number' => 'required',
             'department_id' => 'required'
@@ -44,6 +46,7 @@ class employeeController extends Controller
             'first_name.required' => 'กรุณากรอกชื่อพนักงาน',
             'last_name.required' => 'กรุณากรอกนามสกุลของพนักงาน', // ปรับเปลี่ยนข้อความแจ้งเตือนให้เหมาะสม
             'username.required' => 'กรุณากรอกชื่อผู้ใช้ของพนักงาน',
+            'email' => 'กรุณากรอกอีเมล์ของพนักงาน',
             'password.required' => 'กรุณากรอกรหัสผ่านของพนักงาน',
             'phone_number.required' => 'กรุณากรอกเบอร์โทรของพนักงาน',
             'department_id.required' => 'กรุณาเลือกแผนก',
@@ -53,9 +56,12 @@ class employeeController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'username' => $request->username,
-            'password' => $request->password,
+            'email' => $request->email,
+            // 'password' => $request->password,
+            'password' => Hash::make($request->password),
             'phone_number' => $request->phone_number,
-            'department_id' => $request->department_id
+            'department_id' => $request->department_id,
+            'status' => 1
         ];
     
         DB::table('employee_data')->insert($data);
@@ -83,6 +89,7 @@ class employeeController extends Controller
             'first_name' => 'required',
             'last_name' => 'required', // เพิ่มการตรวจสอบให้ตรงกับชื่อฟิลด์ในฐานข้อมูล
             'username' => 'required',
+            'email' => 'required|email|unique:users',
             'password' => 'required',
             'phone_number' => 'required',
             'department_id' => 'required'
@@ -91,6 +98,7 @@ class employeeController extends Controller
             'first_name.required' => 'กรุณากรอกชื่อพนักงาน',
             'last_name.required' => 'กรุณากรอกนามสกุลของพนักงาน', // ปรับเปลี่ยนข้อความแจ้งเตือนให้เหมาะสม
             'username.required' => 'กรุณากรอกชื่อผู้ใช้ของพนักงาน',
+            'email' => 'กรุณากรอกอีเมล์ของพนักงาน',
             'password.required' => 'กรุณากรอกรหัสผ่านของพนักงาน',
             'phone_number.required' => 'กรุณากรอกเบอร์โทรของพนักงาน',
             'department_id.required' => 'กรุณาเลือกแผนก',
@@ -100,9 +108,11 @@ class employeeController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'username' => $request->username,
+            'email' => $request->email,
             'password' => $request->password,
             'phone_number' => $request->phone_number,
-            'department_id' => $request->department_id
+            'department_id' => $request->department_id,
+            'status' => 1
         ];
            
         DB::table('employee_data')->where('employee_id',$id)->update($data);;

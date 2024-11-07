@@ -140,8 +140,19 @@ a.sidebar-link:hover {
                         <a href="#">Clothing Shop</a>
                     </div>
                     <div>
-                       <p class="text-light"> admin {{ Auth::user()->name }}</p>
+                       <p class="text-light username" id="username"> admin</p>
                     </div>
+                    {{-- <div>
+                        <p class="text-light">
+                            admin 
+                            @if (Auth::check()) <!-- ตรวจสอบว่าล็อกอินใน guard หลักหรือไม่ -->
+                                {{ Auth::user()->name }}
+                            @elseif (Auth::guard('employee')->check()) <!-- ตรวจสอบว่าล็อกอินใน guard employee หรือไม่ -->
+                                {{ Auth::guard('employee')->user()->username() }}
+                                console.log({{ Auth::guard('employee')->user()->username() }});
+                            @endif
+                        </p>
+                    </div> --}}
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -253,12 +264,6 @@ a.sidebar-link:hover {
                         <span>Report SummarySale</span>
                     </a>
                 </li>
-                {{-- <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
-                        <i class="lni lni-protection"></i>
-                        <span>Auth</span>
-                    </a> --}}
                     <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
                             <a href="#" class="sidebar-link">Login</a>
@@ -292,10 +297,25 @@ a.sidebar-link:hover {
 
     </div>
 
-
-       
     </div>
 
 </body>
+<script>
+    // เก็บค่าใน sessionStorage หรือ localStorage
+    @if(session('username') && session('department'))
+        // เก็บค่าที่ส่งมาจาก Controller ลงใน sessionStorage
+        sessionStorage.setItem('username', '{{ session('username') }}');
+        sessionStorage.setItem('department', '{{ session('department') }}');
+    @endif
+    document.getElementById('username').innerText = sessionStorage.getItem('username');
+    // ตรวจสอบค่าของ 'department' จาก sessionStorage
+    var department = sessionStorage.getItem('department');
+
+    // หาก department เท่ากับ 2 ให้ซ่อน <li> ที่ต้องการ
+    if (department == 2) {
+        // ซ่อน <li> ที่มีคลาส .sidebar-item
+        document.querySelector('.sidebar-item').style.display = 'none';
+    }
+</script>
 </html>
 
