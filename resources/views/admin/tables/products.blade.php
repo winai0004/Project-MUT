@@ -32,8 +32,8 @@
                     <td>
                         <img src="{{ asset('images/' . $item->product_img) }}" alt="Product Image" class=" object-fit-cover rounded-circle" width="80px" height="80px">
                     </td>
-                    <td>{{$item->selling_price}}</td>
                     <td>{{$item->cost_price}}</td>
+                    <td>{{$item->selling_price}}</td>
                     <td>{{$item->color_name}}</td>
                     <td>{{$item->size_name}}</td>
                     <td>{{$item->category_name}}</td>

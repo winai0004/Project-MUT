@@ -1,5 +1,5 @@
 @extends('layouts_admin.app_admin')
-@section('title','หน้าแรกของเว็บไซต์เช่าชุด')
+@section('title','Clothing Shop')
 
 @section('content')
 

@@ -15,51 +15,48 @@ class UnsoldProductsReportController extends Controller
         $startDate = $request->input('start_date', Carbon::now()->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->toDateString());
         $selectedCategory = $request->input('category_id'); // รับค่า category_id ที่ถูกเลือกจาก form
-
+    
+        // ดึงข้อมูลประเภทสินค้าทั้งหมด
         $categories = DB::table('product_category_data')->select('category_id', 'category_name')->get();
-
-        // ดึงข้อมูลสินค้าที่ขายในช่วงวันที่ที่เลือก
-        $soldProducts = DB::table('order_shop_detail')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get()
-            ->flatMap(function ($report) {
-                $orderItems = collect(json_decode($report->order_items, true));
-                return $orderItems->map(function ($item) {
-                    return [
-                        'product_id' => $item['product_id'] ?? null,
-                        'quantity' => $item['quantity'] ?? 0,
-                    ];
-                });
-            });
-
-        // ดึงข้อมูลสินค้าทั้งหมดจาก stock_items และ products
-        $allProducts = DB::table('stock_items')
-            ->join('products', 'stock_items.product_id', '=', 'products.product_id')
-            ->select('stock_items.product_id', 'stock_items.quantity', 'products.product_name', 'products.category_id')
+    
+        // ดึงข้อมูลสินค้าที่ถูกขายในช่วงวันที่ที่เลือกจาก item_orders
+        $soldProducts = DB::table('item_orders')  
+            ->join('order', 'item_orders.order_id', '=', 'order.order_id') // เชื่อมโยงกับตาราง order
+            ->join('order_shop_detail', 'item_orders.order_id', '=', 'order_shop_detail.order_id') // ตรวจสอบว่าการเชื่อมโยงถูกต้อง
+            ->whereBetween('order_shop_detail.created_at', [$startDate, $endDate]) // เช็คช่วงเวลาจากตาราง order_shop_detail
+            ->select('item_orders.product_id', DB::raw('SUM(item_orders.total_quantity) as total_quantity'))
+            ->groupBy('item_orders.product_id')
             ->get();
-
-        // กรองสินค้าที่ขายไม่ออก
+    
+        // ดึงข้อมูลสินค้าทั้งหมดจากตาราง products
+        $allProducts = DB::table('products')
+            ->join('product_category_data as c', 'products.category_id', '=', 'c.category_id')
+            ->select('products.product_id', 'products.product_name', 'c.category_name', 'products.category_id')
+            ->get();
+    
+        // กรองสินค้าที่ไม่ได้ขายในช่วงเวลานั้น
         $unsoldProducts = $allProducts->filter(function ($product) use ($soldProducts) {
-            $soldQuantity = $soldProducts->where('product_id', $product->product_id)->sum('quantity');
-            return $soldQuantity == 0;
+            $soldQuantity = $soldProducts->where('product_id', $product->product_id)->sum('total_quantity');
+            return $soldQuantity == 0; // สินค้าที่ไม่ได้ขาย
         });
-
+    
         // กรองตามประเภทสินค้า หากมีการเลือก
         if ($selectedCategory) {
             $unsoldProducts = $unsoldProducts->filter(function ($product) use ($selectedCategory) {
                 return $product->category_id == $selectedCategory;
             });
         }
-
+    
         // เตรียมข้อมูลเพื่อส่งไปยัง view
         $groupedItems = $unsoldProducts->map(function ($product) {
             return [
                 'product_id' => $product->product_id,
                 'product_name' => $product->product_name,
-                'quantity' => $product->quantity,
+                'category_name' => $product->category_name,
             ];
         });
-
+    
+        // ส่งข้อมูลไปยัง view
         return view('admin.tables.reportunsold', compact('groupedItems', 'startDate', 'endDate', 'categories', 'selectedCategory'));
     }
-}
+}    

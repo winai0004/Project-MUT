@@ -2,50 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
-class promotionController extends Controller
+class PromotionController extends Controller
 {
-    //
-    //
     public function index()
     {
-        $promotion = DB::table('promotion_data')
+        $currentDate = Carbon::now();
+        $promotions = DB::table('promotion_data')
             ->join('products', 'promotion_data.product_id', '=', 'products.product_id')
             ->select('promotion_data.*', 'products.product_name as product_name')
+            ->where('promotion_data.start_date', '<=', $currentDate)
+            ->where('promotion_data.end_date', '>=', $currentDate)
             ->get();
-
-        return view('admin/tables/promotion', compact('promotion'));
+    
+        return view('admin/tables/promotion', compact('promotions'));  // ใช้ตัวแปร $promotions
     }
-
-
-    //TODO:: แก้ edit ต่อ
+    
 
     public function create()
     {
-
         $stockProductIds = DB::table('promotion_data')->pluck('product_id')->toArray();
-     
         $products = DB::table('products')
-            ->whereNotIn('product_id',  $stockProductIds)
+            ->whereNotIn('product_id', $stockProductIds)
             ->get();
 
         return view('admin/form/promotionForm', compact('products'));
     }
 
-
     public function insert(Request $request)
     {
         $request->validate([
-            'product_id' => 'nullable',
-            'discount' => 'nullable'
+            'product_id' => 'required',
+            'discount' => 'required|numeric',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date'
         ]);
 
         $data = [
             'product_id' => $request->product_id,
-            'discount' => $request->discount
+            'discount' => $request->discount,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date
         ];
 
         DB::table('promotion_data')->insert($data);
@@ -53,46 +53,42 @@ class promotionController extends Controller
         return redirect('admin/tables/promotion');
     }
 
-
     public function delete($id)
     {
         DB::table('promotion_data')->where('promotion_id', $id)->delete();
         return redirect('admin/tables/promotion');
     }
 
-
     public function edit($id)
     {
-        // ดึงข้อมูลโปรโมชันพร้อมชื่อสินค้าที่เกี่ยวข้อง
         $promotion = DB::table('promotion_data')
             ->join('products', 'promotion_data.product_id', '=', 'products.product_id')
-            ->select('promotion_data.*', 'products.product_name as product_name') // ดึงข้อมูล promotion_data และชื่อสินค้าจาก stock_items
+            ->select('promotion_data.*', 'products.product_name as product_name')
             ->where('promotion_data.promotion_id', $id)
             ->first();
 
-        // ดึงรายการสินค้าทั้งหมดจาก stock_items สำหรับแสดงใน select box
         $products = DB::table('products')->get();
 
-        return view('admin/form/promotionEdit', compact('promotion', 'products')); // ส่งทั้ง promotion และ stocks ไปที่ view
+        return view('admin/form/promotionEdit', compact('promotion', 'products'));
     }
-
 
     public function update(Request $request, $id)
     {
-
-        // dd($id);
         $request->validate([
-            'product_id' => 'nullable',
-            'discount' => 'nullable'
+            'product_id' => 'required',
+            'discount' => 'required|numeric',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date'
         ]);
 
         $data = [
             'product_id' => $request->product_id,
-            'discount' => $request->discount
+            'discount' => $request->discount,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date
         ];
 
-
-        DB::table('promotion_data')->where('promotion_id', $id)->update($data);;
+        DB::table('promotion_data')->where('promotion_id', $id)->update($data);
         return redirect('admin/tables/promotion');
     }
 }

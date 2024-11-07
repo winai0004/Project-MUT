@@ -29,6 +29,10 @@ class Order_ProductDetailController extends Controller
         ->select('item_orders.*', 'products.*', 'shirt_color.*', 'shirt_size_data.*') // เลือกทุกคอลัมน์จากทั้งสี่ตาราง
         ->get();
 
+        
+
+
+
         $orderDetails = DB::table('order_shop_detail')
             ->where('order_detail_id', $orderDetailId)
             ->first();
