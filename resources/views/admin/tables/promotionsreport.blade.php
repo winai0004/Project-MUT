@@ -2,19 +2,33 @@
 
 @section('content')
 <div class="container px-5 my-5">
-    <h5 class="text-center">รายงานสรุปยอดโปรโมชั่น</h5>
+    <h5 class="text-center mb-4">รายงานสรุปยอดโปรโมชั่น</h5>
 
     <div class="overflow-auto p-3 bg-light" style="max-height: 600px;">
-        <form action="{{ route('promotionsreport') }}" method="GET" class="mb-2">
-            <label for="start_date">เลือกวันที่เริ่มต้น:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ $startDate ?? '' }}">
-        
-            <label for="end_date">เลือกวันที่สิ้นสุด:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ $endDate ?? '' }}">
-            <input type="submit" value="ค้นหา" class="btn btn-primary">
+        <!-- ฟอร์มค้นหา -->
+        <form action="{{ route('promotionsreport') }}" method="GET" class="mb-4">
+            <div class="row align-items-end">
+                <!-- วันที่เริ่มต้น -->
+                <div class="col-md-5 mb-3">
+                    <label for="start_date" class="form-label">เลือกวันที่เริ่มต้น:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ $startDate ?? '' }}" class="form-control">
+                </div>
+                
+                <!-- วันที่สิ้นสุด -->
+                <div class="col-md-5 mb-3">
+                    <label for="end_date" class="form-label">เลือกวันที่สิ้นสุด:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ $endDate ?? '' }}" class="form-control">
+                </div>
+
+                <!-- ปุ่มค้นหา -->
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">ค้นหา</button>
+                </div>
+            </div>
         </form>
 
-        <table id="example" class="table table-striped border" style="width:100%">
+        <!-- ตารางแสดงข้อมูลโปรโมชั่น -->
+        <table id="example" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
                     <th>ลำดับ</th>
@@ -30,8 +44,7 @@
                     <td>{{ $item['product_name'] }}</td>
                     <td>{{ isset($item['discount']) && $item['discount'] !== null ? $item['discount'] . ' %' : '-' }}</td>
                 </tr>
-            @endforeach
-            
+                @endforeach
             </tbody>
         </table>
     </div>
