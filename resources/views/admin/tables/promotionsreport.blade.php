@@ -4,55 +4,65 @@
 <div class="container px-5 my-5">
     <h5 class="text-center mb-4">รายงานสรุปยอดโปรโมชั่น</h5>
 
-    <div class="overflow-auto p-3 bg-light" style="max-height: 600px;">
+    <div class="bg-light p-4 rounded shadow-sm">
         <!-- ฟอร์มค้นหา -->
-        <form action="{{ route('promotionsreport') }}" method="GET" class="mb-4">
-            <div class="row align-items-end">
-                <!-- วันที่เริ่มต้น -->
+        <form method="GET" action="{{ route('promotionsreport') }}" class="mb-4">
+            <div class="row">
                 <div class="col-md-5 mb-3">
-                    <label for="start_date" class="form-label">เลือกวันที่เริ่มต้น:</label>
-                    <input type="date" id="start_date" name="start_date" value="{{ $startDate ?? '' }}" class="form-control">
+                    <label for="start_date">เลือกวันที่เริ่มต้น:</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ request()->input('start_date', '2024-09-01') }}" class="form-control">
                 </div>
-                
-                <!-- วันที่สิ้นสุด -->
                 <div class="col-md-5 mb-3">
-                    <label for="end_date" class="form-label">เลือกวันที่สิ้นสุด:</label>
-                    <input type="date" id="end_date" name="end_date" value="{{ $endDate ?? '' }}" class="form-control">
+                    <label for="end_date">เลือกวันที่สิ้นสุด:</label>
+                    <input type="date" name="end_date" id="end_date" value="{{ request()->input('end_date', '2024-11-30') }}" class="form-control">
                 </div>
-
-                <!-- ปุ่มค้นหา -->
-                <div class="col-md-2 mb-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary btn-lg w-100">ค้นหา</button>
+                <div class="col-md-2 d-flex align-items-end mb-3">
+                    <button type="submit" class="btn btn-primary w-100">แสดง</button>
                 </div>
             </div>
         </form>
 
-        <!-- ตารางแสดงข้อมูลโปรโมชั่น -->
-        <table id="example" class="table table-striped table-bordered" style="width:100%">
-            <thead>
-                <tr>
-                    <th>ลำดับ</th>
-                    <th>ชื่อสินค้า</th>
-                    <th>ส่วนลด</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php $counter = 1; @endphp
-                @foreach($groupedItems as $item)
-                <tr>
-                    <th scope="row">{{ $counter++ }}</th>
-                    <td>{{ $item['product_name'] }}</td>
-                    <td>{{ isset($item['discount']) && $item['discount'] !== null ? $item['discount'] . ' %' : '-' }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <!-- ตารางแสดงข้อมูลรายงาน -->
+        <div class="overflow-auto">
+            <table id="promotionReportTable" class="table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>ลำดับ</th>
+                        <th>ชื่อสินค้า</th>
+                        <th>ส่วนลด</th>
+                        <th>จำนวนที่ขาย</th>
+                        <th>ราคาที่ขายรวม</th>
+                        <th>ราคาหลังหักส่วนลด</th>
+                        <th>ยอดขายรวม</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($reports as $index => $report)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $report->product_name }}</td>
+                        <td>{{ $report->discount }}%</td>
+                        <td>{{ $report->total_quantity }}</td>
+                        <td>{{ number_format($report->total_price, 2) }} บาท</td>
+                        <td>{{ number_format($report->discount_price, 2) }} บาท</td>
+                        <td>{{ number_format($report->total_sales, 2) }} บาท</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
     $(document).ready(function() {
         $('#example').DataTable({
+            "paging": true,    // การแบ่งหน้า
+            "pageLength": 4,  // แสดง 4 แถวต่อหน้า
+            "lengthMenu": [  // ให้เลือกจำนวนแถวที่จะแสดงได้
+                [4, 10, 25, 50],
+                [4, 10, 25, 50] // ตัวเลือกให้แสดง 4, 10, 25, 50 แถว
+            ],
             "language": {
                 "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
                 "zeroRecords": "ไม่พบข้อมูล",
@@ -70,5 +80,4 @@
         });
     });
 </script>
-
 @endsection
