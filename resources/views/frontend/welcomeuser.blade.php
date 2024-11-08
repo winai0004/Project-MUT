@@ -95,7 +95,13 @@
         {{ $products->links() }}
     </div>
 </div>
+<script>
+    // เก็บค่าใน sessionStorage หรือ localStorage
+    @if(session('id'))
+        // เก็บค่าที่ส่งมาจาก Controller ลงใน sessionStorage
+        sessionStorage.setItem('userId', '{{ session('id') }}');
+    @endif
+</script>
 
  
-
 @endsection

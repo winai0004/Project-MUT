@@ -50,8 +50,18 @@
                          @else
 
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('cartview') }}">
+                            <a class="nav-link" href="{{ route('cartview') }}" >
                                 <i class="fas fa-shopping-cart"></i> ตะกร้า
+                            </a>
+                        </li>
+                        {{-- <li class="nav-item">
+                            <a class="nav-link" href="" href="" onclick="redirectToHistory()">
+                                <i class="fas fa-shopping-cart"></i> ประวัติการสั่งซื้อ
+                            </a>
+                        </li> --}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="redirectToHistory()">
+                                <i class="fas fa-shopping-cart"></i> ประวัติการสั่งซื้อ
                             </a>
                         </li>
                         <li class="nav-item dropdown">
@@ -86,4 +96,18 @@
         </footer>
      </div>
  </body>
+ <script>
+    function redirectToHistory() {
+        
+        const id = sessionStorage.getItem('userId'); // ดึงค่า id จาก sessionStorage
+            if (id) {
+                // แทนที่ 'history.show' ด้วยชื่อ route ของคุณในรูปแบบ URL
+                const url = `{{ url('/frontend/history') }}/${encodeURIComponent(id)}`;
+                window.location.href = url;
+            } else {
+                alert('ไม่พบข้อมูล ID ใน Session Storage'); // แสดงข้อความเตือนหากไม่มีค่า id
+            }
+    }
+ </script>
+ 
  </html>

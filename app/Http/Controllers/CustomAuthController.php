@@ -59,6 +59,7 @@ class CustomAuthController extends Controller
     
     $credentials = $request->only('email', 'password');
 
+    
     // พยายามเข้าสู่ระบบทั้งในฐานะ user และ employee
     if (Auth::attempt($credentials) && $status==2) {
         $user = Auth::user();
@@ -71,7 +72,8 @@ class CustomAuthController extends Controller
         }
 
         // หาก status == 2
-        return redirect()->intended('/')->withSuccess('Signed in');
+        // return redirect()->intended('/')->withSuccess('Signed in');
+        return redirect()->intended('/')->withSuccess('Signed in')->with('id', $user->id);
     }
 
     if (Auth::guard('employee')->attempt($credentials)) {

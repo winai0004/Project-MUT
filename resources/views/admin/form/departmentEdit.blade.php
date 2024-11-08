@@ -22,24 +22,28 @@
                             </div>
                         @enderror
                         
-                        <div class="row">
-                            <div class="mb-3 col-md-6">
-                                <label>สิทธิ์<span class="text-danger">*</span></label>
-                              
-                            <select name="permission_id" class="form-select" aria-label="Default select example">
-                                 <option selected disabled>เลือกสิทธิ์</option>
-                                   @foreach($permission as $permission)
-                                    <option value="{{ $permission->permission_id }}" @if($permission->permission_id == $permissionId) selected @endif>{{ $permission->permission_name }}</option>
-                                  @endforeach
-                            </select>
-                                                                    
-                                @error('permission_id')
-                                    <span class="text-danger">{{$message}}</span>
-                                @enderror
+                        <!-- ส่วนสำหรับรับข้อมูลสิทธิ์ -->
+                        <div id="rights">
+                            <div class="row">
+                                <div class="mb-3 col-md-12">
+                                    <label>สิทธิ์<span class="text-danger">*</span></label>
+                                    <div class="form-check">
+                                        @foreach($permission as $item)
+                                            <input type="checkbox" name="permission_id[]" value="{{ $item->permission_id }}" class="form-check-input" id="permission-{{ $item->permission_id }}">
+                                            <label class="form-check-label" for="permission-{{ $item->permission_id }}">{{ $item->permission_name }}</label>
+                                            <br>
+                                        @endforeach
+                                    </div>
+                                    @error('permission_id')
+                                        <span class="text-danger">{{$message}}</span>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
+                        
                         <div class="col-md-12">
                            <button class="btn btn-primary float-end" type="submit" >บันทึก</button>
+                           <button class="btn btn-secondary float-end me-2" type="button" onclick="addRight()">เพิ่มสิทธิ์</button>
                             <a href="{{route('department')}}"><button class="btn btn-danger float-end me-2" type="button">กลับ</button></a>
                         </div>
                     </div>

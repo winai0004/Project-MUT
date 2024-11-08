@@ -300,7 +300,7 @@ a.sidebar-link:hover {
     </div>
 
 </body>
-<script>
+{{-- <script>
     // เก็บค่าใน sessionStorage หรือ localStorage
     @if(session('username') && session('department'))
         // เก็บค่าที่ส่งมาจาก Controller ลงใน sessionStorage
@@ -308,14 +308,56 @@ a.sidebar-link:hover {
         sessionStorage.setItem('department', '{{ session('department') }}');
     @endif
     document.getElementById('username').innerText = sessionStorage.getItem('username');
+    //ตรวจสอบค่าของ 'department' จาก sessionStorage
+    var department = sessionStorage.getItem('department');
+
+    //หาก department เท่ากับ 2 ให้ซ่อน <li> ที่ต้องการ
+    if (department == 2) {
+        // ซ่อน <li> ที่มีคลาส .sidebar-item
+        document.querySelector('.sidebar-item').style.display = 'none';
+    }
+</script> --}}
+<script>
+    // เก็บค่าใน sessionStorage หรือ localStorage
+    @if(session('username') && session('department'))
+        // เก็บค่าที่ส่งมาจาก Controller ลงใน sessionStorage
+        sessionStorage.setItem('username', '{{ session('username') }}');
+        sessionStorage.setItem('department', '{{ session('department') }}');
+    @endif
+
+    document.getElementById('username').innerText = sessionStorage.getItem('username');
+
     // ตรวจสอบค่าของ 'department' จาก sessionStorage
     var department = sessionStorage.getItem('department');
 
     // หาก department เท่ากับ 2 ให้ซ่อน <li> ที่ต้องการ
     if (department == 2) {
-        // ซ่อน <li> ที่มีคลาส .sidebar-item
-        document.querySelector('.sidebar-item').style.display = 'none';
+        var sidebarItems = document.querySelectorAll('.sidebar-item');
+
+        // รายการชื่อใน <span> ที่ต้องการซ่อน
+        var itemsToHide = [
+            "Product",
+            "Shirt Type",
+            "Shirt Color",
+            "Shirt Size",
+            "Employee",
+            "Department",
+            "Permission",
+            "Advert",
+            "Membership Level"
+        ];
+
+        // วนลูปเพื่อซ่อน <li> ที่มีข้อความตรงกับ itemsToHide
+        sidebarItems.forEach(function(item) {
+            var spanText = item.querySelector('span').textContent.trim();
+
+            // ซ่อนเฉพาะรายการที่ตรงกับชื่อใน itemsToHide
+            if (itemsToHide.includes(spanText)) {
+                item.style.display = 'none';
+            }
+        });
     }
 </script>
+
 </html>
 

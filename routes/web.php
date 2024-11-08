@@ -24,6 +24,7 @@ use App\Http\Controllers\UnsoldProductsReportController;
 use App\Http\Controllers\PromotionsReportController;
 use App\Http\Controllers\ReportCostController;
 use App\Http\Controllers\SummarySaleReportController;
+use App\Http\Controllers\HistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -147,6 +148,7 @@ Route::post('admin/order_products_detail/update/{id}', [Order_ProductDetailContr
 
 
 
+
 //Sale Product
 Route::get('admin/tables/sale_products', [Sale_ProductController::class, 'index'])->name('sale_products');
 Route::get('admin/form/sale_productsForm', [Sale_ProductController::class, 'create'])->name('form_sale_products');
@@ -193,6 +195,7 @@ Route::get('admin/tables/report', [ReportSalesController::class, 'index'])->name
 // Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::middleware(['auth'])->group(function () {
     Route::get('frontend/product_detail/{id}', [ProductController::class, 'Detailview'])->name('detail');
+    Route::get('frontend/history/{id}', [HistoryController::class, 'index'])->name('index');
     Route::get('/cart', [CartController::class, 'cartview'])->name('cartview');
     Route::get('/checkout', [CartController::class, 'checkoutView'])->name('checkout-view');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
