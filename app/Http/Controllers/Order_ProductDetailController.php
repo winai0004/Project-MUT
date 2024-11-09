@@ -39,7 +39,7 @@ class Order_ProductDetailController extends Controller
     //     return view('admin.view.order_view', compact('orders', 'orderDetails', 'status'));
     // }
 
-        public function orderview($orderId, $orderDetailId, $status)
+    public function orderview($orderId, $orderDetailId, $status)
     {
 
         $order_id = $orderId;
@@ -58,7 +58,7 @@ class Order_ProductDetailController extends Controller
             ->first();
 
         // ส่งข้อมูลไปยัง view
-        return view('admin.view.order_view', compact('orders', 'orderDetails', 'status','order_id'));
+        return view('admin.view.order_view', compact('orders', 'orderDetails', 'status', 'order_id'));
     }
 
 
@@ -66,76 +66,45 @@ class Order_ProductDetailController extends Controller
     {
         $order_id = $request->input('order_id');
         $status = $request->input('status');
-    
-        // ดึงข้อมูลคำสั่งซื้อ
-        $itemOrder = DB::table('item_orders')->where('order_id', $order_id)->first();
-    
-        if (!$itemOrder) {
-            return response()->json(['success' => false, 'message' => 'Order not found.']);
-        }
-    
-        $productId = $itemOrder->product_id;
-        $quantity = $itemOrder->total_quantity;
-    
-        if ($status == 3) { // ยกเลิกการสั่งซื้อ
-            // ดึงข้อมูลสต็อกของสินค้านี้
-            $stockItem = DB::table('stock_items')->where('product_id', $productId)->first();
-    
-            if (!$stockItem || $stockItem->quantity < $quantity) {
-                return response()->json(['success' => false, 'message' => 'Not enough stock.']);
-            }
-    
-            // เพิ่มจำนวนสินค้าในสต็อก
-            DB::table('stock_items')
-                ->where('product_id', $productId)
-                ->decrement('quantity', $quantity);
-    
-            // ลบคำสั่งซื้อออกจากฐานข้อมูล
-            DB::table('order')->where('order_id', $order_id)->delete();
-            DB::table('item_orders')->where('order_id', $order_id)->delete();
-    
-            return response()->json(['success' => true, 'message' => 'Order canceled and stock updated.']);
-        } else {
-            // อัปเดตสถานะคำสั่งซื้อ
-            DB::table('order')
-                ->where('order_id', $order_id)
-                ->update(['status' => $status]);
-    
-            return response()->json(['success' => true, 'message' => 'Order status updated.']);
-        }
+
+        // อัปเดตสถานะคำสั่งซื้อ
+        DB::table('order')
+            ->where('order_id', $order_id)
+            ->update(['status' => $status]);
+
+        return response()->json(['success' => true, 'message' => 'Order status updated.']);
     }
-    
+
 
     public function delete($id)
     {
         // ตรวจสอบว่ามีคำสั่งซื้อหรือไม่
         $itemOrder = DB::table('item_orders')->where('order_id', $id)->first();
-    
+
         if (!$itemOrder) {
             return response()->json(['success' => false, 'message' => 'Order not found.']);
         }
-    
+
         // รับข้อมูล product_id และ quantity
         $productId = $itemOrder->product_id;
         $quantity = $itemOrder->total_quantity;
-    
+
         // ตรวจสอบว่ามีข้อมูลสต็อกสินค้าที่ต้องการลดหรือไม่
         $stockItem = DB::table('stock_items')->where('product_id', $productId)->first();
-        
+
         if (!$stockItem || $stockItem->quantity < $quantity) {
             return response()->json(['success' => false, 'message' => 'Not enough stock or stock item not found.']);
         }
-    
+
         // ลดจำนวนสินค้าในสต็อก
         DB::table('stock_items')
             ->where('product_id', $productId)
             ->decrement('quantity', $quantity);
-    
+
         // ลบคำสั่งซื้อและรายการคำสั่งซื้อที่เกี่ยวข้อง
         DB::table('order')->where('order_id', $id)->delete();
         DB::table('item_orders')->where('order_id', $id)->delete();
-    
+
         return response()->json(['success' => true, 'message' => 'Order and related items deleted, stock updated.']);
     }
-    
 }

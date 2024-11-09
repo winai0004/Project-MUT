@@ -28,7 +28,7 @@
                             @if($item->status == 0)
                                 <a href="#" class="btn btn-warning btn-sm">รอยืนยันการสั่งซื้อ</a>
                             @elseif($item->status == 1)
-                                <a href="#" class="btn btn-success btn-sm">ยืนยันการสั่งซื้อ</a>
+                                <a href="#" class="btn btn-info btn-sm">ยืนยันการสั่งซื้อ</a>
                             @elseif($item->status == 2)
                                 <a href="#" class="btn btn-danger btn-sm">อนุมัติการสั่งซื้อ</a>
                             @elseif($item->status == 3)
