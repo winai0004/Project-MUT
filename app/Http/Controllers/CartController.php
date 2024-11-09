@@ -260,7 +260,7 @@ class CartController extends Controller
                 'order_detail_id' => $orderShopDetailId, 
                 'order_number' => strtoupper(uniqid('ORD_')),
                 'user_id' => $user_id,
-                'status' => 1, // successful
+                'status' => 1, // ยืนยันการสั่งซื้อ
                 'created_at' => now(),
             ]);
 

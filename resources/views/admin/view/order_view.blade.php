@@ -70,6 +70,13 @@
                             <div>Total Price: {{ number_format($orders->sum('total_price'), 2) }} บาท</div>
                             <div>Total Quantity: {{ $orders->sum('total_quantity') }} ชิ้น</div>
                         </div>
+                        <div>
+                            <select id="orderStatus" data-order-id="{{ $order_id }}" class="form-select form-select-sm">
+                                <option value="2" >อนุมัติการสั่งซื้อ</option>
+                                <option value="3" >ยกเลิกการสั่งซื้อ</option>
+                            </select>
+                            
+                        </div>
                     </div>
                 @else
                     <center><h1>เกิดข้อผิดพลาด</h1></center>

@@ -26,11 +26,13 @@
                         <td>{{ $item->created_at }}</td>
                         <td style="width:50px;">
                             @if($item->status == 0)
-                                <a href="#" class="btn btn-warning btn-sm">Pending</a>
+                                <a href="#" class="btn btn-warning btn-sm">รอยืนยันการสั่งซื้อ</a>
                             @elseif($item->status == 1)
-                                <a href="#" class="btn btn-success btn-sm">Success</a>
+                                <a href="#" class="btn btn-success btn-sm">ยืนยันการสั่งซื้อ</a>
                             @elseif($item->status == 2)
-                                <a href="#" class="btn btn-danger btn-sm">Failed</a>
+                                <a href="#" class="btn btn-danger btn-sm">อนุมัติการสั่งซื้อ</a>
+                            @elseif($item->status == 3)
+                                <a href="#" class="btn btn-danger btn-sm">ยกเลิกการสั่งซื้อ</a>
                             @endif
                         </td>
                         <td style="width:50px;">
